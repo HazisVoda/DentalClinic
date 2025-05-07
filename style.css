@@ -1,7 +1,7 @@
 :root{
-    --yellow: #cc2222;
-    --black: #131313;
-    --white: #fff;
+    --yellow: #76d3ff;
+    --black: #152527;
+    --white: #c9dfeb;
 }
 
 *{
@@ -14,6 +14,7 @@
 .navbar{
     background-color: var(--black);
     height: 80px;
+    font-weight: bold;
     padding: 0.5rem calc((100vw - 1200px) / 2);
     display: flex;
     justify-content: space-between;
@@ -23,14 +24,14 @@
 }
  
 .navbar__logo{
-    color: var(--white);
+    color: var(--yellow);
     text-decoration: none;
     padding-left: 2rem;
     font-size: 2rem;
 }
 
 .navbar__logo:hover{
-    color: var(--yellow);
+    color: var(--white);
     transition: all ease 0.3s;
 }
 
@@ -115,11 +116,10 @@
     
 /*Hero Section*/
 .hero{
-    background: linear-gradient(to right, rgba(0,0,0, 0.4), rgba(0,0,0, 0.1)),
-    url('palester1.jpg');
+    background: linear-gradient(to right, rgba(0,0,0, 0.4), rgba(0,0,0, 0.1)), url('home.jpg');
     height: 100vh;
     background-position: center;
-    background-size: cover;
+    background-size:cover;
     padding: 0.5rem calc((100vw - 1200px) / 2);
     display: flex;
     justify-content: flex-start;
@@ -152,7 +152,8 @@
     outline: none;
     text-decoration: none;
     transition: 0.3s ease;
-    border-radius: 4px;
+    border-radius: 50px;
+    font-weight: bold;
 }
 
 .button:hover{
@@ -334,36 +335,31 @@
     height: 100%;
     border-radius: 10px ;
 }
-
 .team__text:nth-child(1) {
-    grid-row: 1 /3;
-    grid-column: 2 /3;
+    grid-row: 1 / 3;
+    grid-column: 2 / 3;
 }
 
-.team__text:nth-child(2) {
-    grid-row: 5 /6;
-    grid-column: 1 /2;
+.team__card:nth-child(2) { /* Goni */
+    grid-row: 1 / 3;
+    grid-column: 1 / 2;
 }
 
-.team__card:nth-child(3) {
-    grid-row: 1 /3 ;
-    grid-column: 1 /2;
+.team__card:nth-child(3) { /* Gloria */
+    grid-row: 2 / 4;
+    grid-column: 2 / 3;
 }
 
-.team__card:nth-child(4) {
-    grid-row: 2 /4;
-    grid-column: 2 /3;
+.team__card:nth-child(4) { /* Boel */
+    grid-row: 3 / 5;
+    grid-column: 1 / 2;
 }
 
-.team__card:nth-child(5) {
-    grid-row: 3 /5;
-    grid-column: 1 /2;
+.team__card:nth-child(5) { /* Manjola */
+    grid-row: 4 / 6;
+    grid-column: 2 / 3;
 }
 
-.team__card:nth-child(6) {
-    grid-row: 4 /6;
-    grid-column: 2 /3;
-}
 
 @media screen and (max-width:768px) {
     .team__wrapper{
@@ -410,78 +406,116 @@
     rgba(0,0,0, 0.6) 35%, 
     rgba(0,0,0, 0.1) 100%
     ),
-    url('palester3.jpg') no-repeat center;
-    background-size: cover;
-    height: fit-content;
+    url('concept.jpg') center;
+    background-size:cover;
+    background-color: var(--white);
+    height:max-content;
     width: 100%;
     padding: 5rem calc((100vw - 1300px) / 2);
-    color: var(--white);
+    color: var(--black);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center
 }
 
-.email__content{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
+/* Parent content box */
+.email__content {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 1600px;
+    margin: 0 5%;
 }
 
 .email__content h1{
-    text-align: center;
-    margin-bottom: 1rem;
-    font-size: clamp(1rem, 5vw, 3rem);
-    color: var(--yellow);
-    padding: 0 1rem;
+    align-items: center;
 }
 
-.email__content p {
-    text-align: center;
-    font-size: clap(1rem, 2.5vw, 1.5rem);
-    padding: 0 1rem;
-    margin-bottom: 2rem;
+/* Floating label wrapper */
+.input-container {
+    position: relative;
+    margin-bottom: 1.5rem;
 }
 
-form {
-    z-index: 10;
-}
-
-.form__wrap input {
-    padding: 1rem 1.5rem;
-    outline: none;
-    width: 350px;
-    height: 50px;
+/* Inputs and select */
+.form-control,
+.form-select {
+    background: transparent;
     border: none;
-    margin-right: 1rem;
-    border-radius: 4px;
+    border-bottom: 2px solid #333;
+    border-radius: 0;
+    box-shadow: none;
+    padding-left: 0;
+    font-size: 16px;
+    width: 100%;
+    color: #333;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-@media screen and (max-width: 768px) {
-    .form__wrap {
-        display: flex;
-        flex-direction: column;
-        padding: 0 1rem;
-    }
+/* Textarea specific */
+textarea.form-control {
+    min-height: 100px;
+}
 
-    .form__wrap input{
-        margin-bottom: 1rem;
-        width: 100%;
-        margin-right: 0;
-    }
+/* Placeholder hidden trick */
+.form-control::placeholder {
+    color: transparent;
+}
 
-    .button{
-        width: 100%;
-        min-width: 250px;
+/* Labels */
+.input-container label {
+    position: absolute;
+    top: 0.75rem;
+    left: 0;
+    font-size: 16px;
+    color: #666;
+    pointer-events: none;
+    transition: 0.3s ease all;
+}
+
+/* Focus or filled effect */
+.form-control:focus,
+.form-select:focus,
+textarea.form-control:focus {
+    border-bottom: 2px solid var(--yellow);
+    outline: none;
+}
+
+.form-control:focus ~ label,
+.form-control:not(:placeholder-shown) ~ label,
+.form-select:focus ~ label,
+.form-select:not([value=""]) ~ label,
+textarea.form-control:focus ~ label,
+textarea.form-control:not(:placeholder-shown) ~ label {
+    transform: translateY(-20px);
+    font-size: 12px;
+    color: var(--yellow);
+}
+
+/* Button */
+.button.btn-sign {
+    background-color: var(--yellow);
+    border: none;
+    padding: 10px 30px;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button.btn-sign:hover {
+    background-color: var(--black);
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .email__content {
+        padding: 20px;
     }
 }
 
-@media screen and (max-width: 400px) {
-    .button{
-        width: 100%;
-        min-width: 150px;
-    }
-}
 
 /* Footer Section */
 .footer{
@@ -574,7 +608,7 @@ form {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background: url(gym4.jpg);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2)), url(contactB.jpg);
     background-size: cover;
   }
 
@@ -597,7 +631,7 @@ form {
 
   .text a {
     font-weight: 500;
-    color: var(--black);
+    color: var(--white);
     text-decoration: none;
   }
 
@@ -615,6 +649,7 @@ form {
     justify-content: center;
     align-items: center;
     margin-top: 30px;
+    margin: 5%;
   }
 
   .container .contactInfo {
@@ -647,15 +682,23 @@ form {
   }
 
   .container .contactInfo .box .text h3 {
-    color: var(--black);
+    color: var(--white);
+  }
+
+  .container .contactInfo .box .text h3:hover{
+    font-weight: 500;
+    color: var(--yellow);
+    text-decoration: bold;
+    transition: all 0.3s ease;
   }
 
   .contactForm {
-    background: var(--white);
+    background: var(--white);  
     width: 40%;
     padding: 40px;
     border-radius: 5%;
-  }
+    }
+
 
   .contactForm h2{
     font-size: 30px;
@@ -664,23 +707,32 @@ form {
   }
 
   .contactForm .inputBox {
+    color: var(--white);
     position: relative;
     width: 100%;
     margin-top: 10px;
 
   }
 
-.contactForm .inputBox input,
-.contactForm .inputBox textarea{
-    width: 100%;
-    padding: 5px 0;
-    font-size: 16px;
-    margin: 10px 0;
-    border: none;
-    border-bottom: 2px solid #333;
-    outline: none;
-    resize: none;
+  .contactForm .inputBox textarea {
+    height: 40px;  
 }
+
+
+  .contactForm .inputBox input,
+  .contactForm .inputBox textarea {
+      background: transparent; 
+      width: 100%;
+      padding: 5px 0;
+      font-size: 16px;
+      margin: 10px 0;
+      border: none;
+      border-bottom: 2px solid #333;
+      outline: none;
+      resize: none;
+      color: #333; 
+  }
+  
 
 .contactForm .inputBox span{
     position: absolute;
