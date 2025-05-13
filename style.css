@@ -250,8 +250,8 @@
 }
 
 .team__card:hover {
-    transform: scale(1.15);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 2.3);
 }
 
 .team__img {
@@ -268,7 +268,7 @@
     color: var(--yellow);
     font-size: 1.5rem;
     font-weight: bold;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 5.5);
     padding: 0.3rem 0.6rem;
     border-radius: 5px;
 }
