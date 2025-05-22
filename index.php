@@ -31,7 +31,7 @@
             <a href="services.html" class="navbar__link">Services</a>
             <a href="staff.html" class="navbar__link">Staff</a>
             <a href="contact-us.html" class="navbar__link">Contact Us</a>
-            <a href="sign-up.html" class="navbar__link"><button class="button btn-danger btn-lg ">Sign Up</button></a>
+            <a href="login.php" class="navbar__link"><button class="button btn-danger btn-lg ">Sign Up</button></a>
         </div> 
     </nav>
 

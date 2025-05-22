@@ -27,8 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Successful login
             $_SESSION['user_id'] = $userId;
             $_SESSION['role_id'] = $roleId;
-            header('Location: index.php');
+            
+            if ($roleId == 1) {
+                header('Location: admin/admin_dashboard.php');
+            } else {
+                header('Location: index.php');
+            }
             exit;
+
         } else {
             $errors[] = 'Invalid email or password.';
         }
