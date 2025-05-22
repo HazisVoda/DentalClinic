@@ -30,8 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($roleId == 1) {
                 header('Location: admin/admin_dashboard.php');
-            } else {
-                header('Location: index.php');
+            } else if ($roleId == 2) {
+                header('Location: dentist/dentist_dashboard.php');
+            } else if ($roleId == 3) {
+                header('Location: client/client_dashboard.php');
             }
             exit;
 
