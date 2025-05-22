@@ -39,6 +39,7 @@ foreach ($queries as $key => $sql) {
             <a href="users.php">Manage Users</a> |
             <a href="appointments.php">Manage Appointments</a> |
             <a href="feedback.php">View Feedback</a> |
+            <a href="messages.php">View Messages</a> |
             <a href="../logout.php">Logout</a>
         </nav>
     </header>

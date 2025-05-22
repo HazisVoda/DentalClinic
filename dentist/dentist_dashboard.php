@@ -56,6 +56,7 @@ foreach ($queries as $key => $sql) {
             <a href="clients.php">Manage Clients</a> |
             <a href="appointments.php">Manage Appointments</a> |
             <a href="timetable.php">Weekly Timetable</a>  |
+            <a href="messages.php">View Messages</a> |
             <a href="../logout.php">Logout</a>
         </nav>
     </header>
