@@ -1,18 +1,12 @@
 <?php
-    $db_server = "switchback.proxy.rlwy.net:14889";
-    $db_user= "root";
-    $db_pass= "dqyKLGTtpWKDvGAtJDjXMVumRGfehYus";
-    $db_name= "railway";
-   
-    if($conn = mysqli_connect(
-                        $db_server,
-                        $db_user,
-                        $db_pass,
-                        $db_name
-    )) {
-       
-    } else {
-        die(''. mysqli_connect_error());
+    $host = 'localhost';
+    $username = 'root';
+    $password = '';
+    $database = 'clinic';
+
+    $conn = new mysqli($host, $username, $password, $database);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
-?>

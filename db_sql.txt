@@ -1,0 +1,75 @@
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name ENUM('admin','dentist','client') UNIQUE NOT NULL
+);
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  role_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE client_dentist_map (
+  client_id INT NOT NULL,
+  dentist_id INT NOT NULL,
+  PRIMARY KEY (client_id, dentist_id),
+  FOREIGN KEY (client_id) REFERENCES users(id),
+  FOREIGN KEY (dentist_id) REFERENCES users(id)
+);
+
+CREATE TABLE client_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE messages (
+  `id` int(11) AUTO_INCREMENT PRIMARY KEY,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `subject` varchar(200) DEFAULT NULL,
+  `body` text NOT NULL,
+  `sent_at` datetime DEFAULT current_timestamp(),
+  `is_read` tinyint(1) DEFAULT 0,
+  FOREIGN KEY (sender_id) REFERENCES users(id),
+  FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+
+
+CREATE TABLE appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  client_id INT NOT NULL,
+  dentist_id INT NOT NULL,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME NOT NULL,
+  status ENUM('booked','finished','cancelled') DEFAULT 'booked',
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (client_id) REFERENCES users(id),
+  FOREIGN KEY (dentist_id) REFERENCES users(id),
+  FOREIGN KEY (client_id, dentist_id) REFERENCES client_dentist_map(client_id, dentist_id)
+);
+
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  client_id INT NOT NULL,
+  dentist_id INT NOT NULL,
+  rating TINYINT UNSIGNED NOT NULL,
+  comments TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (client_id) REFERENCES users(id),
+  FOREIGN KEY (dentist_id) REFERENCES users(id)
+);
+
+
+CREATE TABLE tokens (
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    PRIMARY KEY (user_id, token),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

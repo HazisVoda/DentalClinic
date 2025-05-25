@@ -1,3 +1,26 @@
+<?php
+require_once("db.php");
+require_once __DIR__.'/check_auth.php';
+
+if(isset($_POST['name']) && isset($_POST['email'])) {
+    $name = htmlspecialchars($_POST['name'] ?? '');
+    $email = htmlspecialchars($_POST['email'] ?? '');
+
+    $errors = [];
+    if (empty($name) || empty($email)) {
+        $errors[] = 'Email and password are required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid email format.';
+    }
+
+    if (empty($errors)) {
+        $query = "INSERT INTO client_requests (name, email) VALUES ('$name', '$email')";
+        mysqli_query($conn, $query);
+    }
+
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,8 +126,8 @@
     <!--Contact Us-->
     <section class="contact">
         <div class="content ">
-            <h2 class="animate-marova">Contact us</h2>
-            <p class="animate-marova">For any misunderstanding please Contact Us below </p>
+            <h2 class="animate-marova">Join Us/h2>
+            <p class="animate-marova">Request an account in our system</p>
         </div>
         <div class="container">
             <div class="contactInfo">
@@ -132,19 +155,15 @@
                 </div>
                 
             <div class="contactForm animate-box">
-                <form class="animate-fjal">
+                <form action="request.php" method="post" class="animate-fjal">
                     <h2 class="fw-bold">Send Message</h2>
                     <div class="inputBox">
-                        <input type="text" name="" required="required">
+                        <input type="text" name="name" required="required">
                         <span>Full Name</span>
                     </div>
                     <div class="inputBox">
-                        <input type="text" name="" required="required">
+                        <input type="text" name="email" required="required">
                         <span>Email</span>
-                    </div>
-                    <div class="inputBox">
-                        <textarea required="required"></textarea>
-                        <span>Type your Message...</span>
                     </div>
                     <div class="inputBox">
                         <button class="button btn-danger fw-bold" type="submit" fdprocessedid="ypirrj">Send Message</button>

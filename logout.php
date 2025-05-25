@@ -1,22 +1,19 @@
 <?php
 session_start();
+require_once __DIR__ . '/db.php';
+if(isset($_SESSION["token"]) && isset($_GET["token"])){
+    $token = $_GET["token"];
+    if($_SESSION['token'] == $token){
+        $stmt = mysqli_prepare($conn, 'DELETE FROM tokens WHERE token = ?');
+        mysqli_stmt_bind_param($stmt, 's', $token);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
 
-$_SESSION = [];
+        setcookie('remember_token', '', time() - 3600, '/', '', false, true);
 
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(
-        session_name(),
-        '',
-        time() - 42000,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
-    );
+        $_SESSION = [];
+        session_destroy();
+    }
 }
+header("location: index.php");
 
-session_destroy();
-header('Location: index.php');
-exit;
-?>

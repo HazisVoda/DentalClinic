@@ -4,7 +4,7 @@ require_once __DIR__ . '/../db.php'; // defines $conn
 
 // Ensure user is logged in and is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -13,8 +13,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 $stats = [];
 $queries = [
     'total_users'       => 'SELECT COUNT(*) FROM users',
-    'total_dentists'    => "SELECT COUNT(*) FROM users WHERE role_id = (SELECT id FROM roles WHERE name='dentist')",
-    'total_clients'     => "SELECT COUNT(*) FROM users WHERE role_id = (SELECT id FROM roles WHERE name='client')",
+    'total_dentists'    => "SELECT COUNT(*) FROM users WHERE role_id = 'dentist'",
+    'total_clients'     => "SELECT COUNT(*) FROM users WHERE role_id = 'client'",
     'total_appointments'=> 'SELECT COUNT(*) FROM appointments',
     'pending_appointments'=> "SELECT COUNT(*) FROM appointments WHERE status = 'booked'",
     'total_feedback'    => 'SELECT COUNT(*) FROM feedback'
@@ -30,17 +30,18 @@ foreach ($queries as $key => $sql) {
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../home.css">
 </head>
 <body>
     <header>
         <h1>Admin Dashboard</h1>
+
         <nav>
             <a href="users.php">Manage Users</a> |
             <a href="appointments.php">Manage Appointments</a> |
             <a href="feedback.php">View Feedback</a> |
             <a href="messages.php">View Messages</a> |
-            <a href="../logout.php">Logout</a>
+            <a href = "../logout.php?token=<?php echo $_SESSION['token']; ?>">Logout</a>
         </nav>
     </header>
 
