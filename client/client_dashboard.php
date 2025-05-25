@@ -24,6 +24,7 @@ function fetch_appts($conn, $client_id, $operator, $limit = null) {
         a.start_time,
         a.end_time,
         a.status,
+        a.notes,
         u.name AS dentist_name
       FROM appointments a
       JOIN users u ON a.dentist_id = u.id
@@ -47,18 +48,33 @@ function fetch_appts($conn, $client_id, $operator, $limit = null) {
 $upcoming = fetch_appts($conn, $client_id, '>=', 5);
 $past     = fetch_appts($conn, $client_id, '<', 5);
 
+// Get unread message count
+$stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND is_read = 0");
+mysqli_stmt_bind_param($stmt, 'i', $client_id);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $unread_count);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
+
+// Get feedback count
+$stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM feedback WHERE client_id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $client_id);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $feedback_count);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Dashboard</title>
+    <title>Client Dashboard - Dental Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <div id="clientDashboard" class="page">
+    <div id="clientDashboard" class="page active">
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
@@ -97,14 +113,16 @@ $past     = fetch_appts($conn, $client_id, '<', 5);
                         <a href="messages.php">
                             <i class="fas fa-envelope"></i>
                             <span>Messages</span>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="badge"><?= $unread_count ?></span>
+                            <?php endif; ?>
                         </a>
                     </li>
                 </ul>
             </aside>
 
             <main class="main-content">
-                <!-- Client Overview -->
-                <div id="clientOverview" class="content-section active">
+                <div class="content-section active">
                     <h2>Dashboard Overview</h2>
                     
                     <div class="stats-grid">
@@ -113,7 +131,7 @@ $past     = fetch_appts($conn, $client_id, '<', 5);
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="stat-info">
-                                <h3><?= htmlspecialchars(count($upcoming))?></h3>
+                                <h3><?= count($upcoming) ?></h3>
                                 <p>Upcoming Appointments</p>
                             </div>
                         </div>
@@ -123,8 +141,28 @@ $past     = fetch_appts($conn, $client_id, '<', 5);
                                 <i class="fas fa-history"></i>
                             </div>
                             <div class="stat-info">
-                                <h3><?= htmlspecialchars(count($past))?></h3>
+                                <h3><?= count($past) ?></h3>
                                 <p>Past Appointments</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3><?= $unread_count ?></h3>
+                                <p>Unread Messages</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3><?= $feedback_count ?></h3>
+                                <p>Feedback Given</p>
                             </div>
                         </div>
                     </div>
@@ -132,146 +170,70 @@ $past     = fetch_appts($conn, $client_id, '<', 5);
                     <div class="recent-appointments">
                         <h3>Upcoming Appointments</h3>
                         <div class="appointment-list">
-                          <?php if (count($upcoming) === 0): ?>
-                            <p>No upcoming appointments.</p>
-                          <?php else: ?>
-                            <?php foreach ($upcoming as $a): ?>
+                            <?php if (count($upcoming) === 0): ?>
+                                <div class="no-appointments">
+                                    <p>No upcoming appointments.</p>
+                                    <a href="appointments.php" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Book Appointment
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($upcoming as $a): ?>
+                                <div class="appointment-item">
+                                    <div class="appointment-date">
+                                        <span class="date"><?= date('M d', strtotime($a['start_time'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($a['start_time'])) ?></span>
+                                    </div>
+                                    <div class="appointment-details">
+                                        <h4><?= htmlspecialchars($a['notes'] ?: 'Appointment') ?></h4>
+                                        <p><?= htmlspecialchars($a['dentist_name']) ?></p>
+                                    </div>
+                                    <div class="appointment-status">
+                                        <span class="status <?= strtolower($a['status']) ?>">
+                                            <?= htmlspecialchars(ucfirst($a['status'])) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                                <div class="appointment-actions">
+                                    <a href="appointments.php" class="btn btn-secondary">View All Appointments</a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <?php if (count($past) > 0): ?>
+                    <div class="recent-appointments">
+                        <h3>Recent Past Appointments</h3>
+                        <div class="appointment-list">
+                            <?php foreach (array_slice($past, 0, 3) as $a): ?>
                             <div class="appointment-item">
                                 <div class="appointment-date">
-                                    <span class="date"><?= date('Y-m-d', strtotime($a['start_time'])) ?></span>
+                                    <span class="date"><?= date('M d', strtotime($a['start_time'])) ?></span>
                                     <span class="time"><?= date('H:i', strtotime($a['start_time'])) ?></span>
                                 </div>
                                 <div class="appointment-details">
-                                    <h4><?= htmlspecialchars($a['notes']) ?></h4>
+                                    <h4><?= htmlspecialchars($a['notes'] ?: 'Appointment') ?></h4>
                                     <p><?= htmlspecialchars($a['dentist_name']) ?></p>
                                 </div>
                                 <div class="appointment-status">
-                                    <span class="status confirmed"><?= htmlspecialchars(ucfirst($a['status'])) ?></td></span>
+                                    <span class="status completed">
+                                        <?= htmlspecialchars(ucfirst($a['status'])) ?>
+                                    </span>
                                 </div>
                             </div>
                             <?php endforeach; ?>
-                          <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Client Appointments -->
-                <div id="clientAppointments" class="content-section">
-                    <h2>My Appointments</h2>
-                    
-                    <div class="appointments-tabs">
-                        <button class="tab-btn active" onclick="showAppointmentTab('upcoming')">Upcoming</button>
-                        <button class="tab-btn" onclick="showAppointmentTab('past')">Past</button>
-                    </div>
-
-                    <div id="upcomingTab" class="tab-content active">
-                        <div class="appointment-list">
-                            <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <h4>Regular Checkup</h4>
-                                    <span class="status confirmed">Confirmed</span>
-                                </div>
-                                <div class="appointment-body">
-                                    <p><i class="fas fa-user-md"></i> Dr. Sarah Johnson</p>
-                                    <p><i class="fas fa-calendar"></i> December 28, 2024</p>
-                                    <p><i class="fas fa-clock"></i> 10:00 AM - 11:00 AM</p>
-                                </div>
-                                <div class="appointment-actions">
-                                    <button class="btn btn-secondary">Reschedule</button>
-                                    <button class="btn btn-danger">Cancel</button>
-                                </div>
+                            <div class="appointment-actions">
+                                <a href="feedback.php" class="btn btn-primary">Give Feedback</a>
                             </div>
                         </div>
                     </div>
-
-                    <div id="pastTab" class="tab-content">
-                        <div class="appointment-list">
-                            <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <h4>Teeth Cleaning</h4>
-                                    <span class="status completed">Completed</span>
-                                </div>
-                                <div class="appointment-body">
-                                    <p><i class="fas fa-user-md"></i> Dr. Sarah Johnson</p>
-                                    <p><i class="fas fa-calendar"></i> November 15, 2024</p>
-                                    <p><i class="fas fa-clock"></i> 2:00 PM - 3:00 PM</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Client Feedback -->
-                <div id="clientFeedback" class="content-section">
-                    <h2>Send Feedback</h2>
-                    
-                    <div class="feedback-form">
-                        <form>
-                            <div class="form-group">
-                                <label for="dentistSelect">Select Dentist</label>
-                                <select id="dentistSelect">
-                                    <option value="">Choose a dentist</option>
-                                    <option value="dr-johnson">Dr. Sarah Johnson</option>
-                                    <option value="dr-smith">Dr. Michael Smith</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="rating">Rating</label>
-                                <div class="rating-stars">
-                                    <i class="fas fa-star" data-rating="1"></i>
-                                    <i class="fas fa-star" data-rating="2"></i>
-                                    <i class="fas fa-star" data-rating="3"></i>
-                                    <i class="fas fa-star" data-rating="4"></i>
-                                    <i class="fas fa-star" data-rating="5"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="feedbackMessage">Your Feedback</label>
-                                <textarea id="feedbackMessage" rows="5" placeholder="Share your experience..."></textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Client Messages -->
-                <div id="clientMessages" class="content-section">
-                    <h2>Messages</h2>
-                    
-                    <div class="messages-container">
-                        <div class="message-compose">
-                            <button class="btn btn-primary" onclick="showComposeModal()">
-                                <i class="fas fa-plus"></i> New Message
-                            </button>
-                        </div>
-                        
-                        <div class="message-list">
-                            <div class="message-item">
-                                <div class="message-header">
-                                    <h4>Appointment Reminder</h4>
-                                    <span class="message-date">Dec 26, 2024</span>
-                                </div>
-                                <p class="message-preview">Your appointment with Dr. Johnson is scheduled for...</p>
-                                <span class="message-from">From: Dr. Sarah Johnson</span>
-                            </div>
-                            
-                            <div class="message-item unread">
-                                <div class="message-header">
-                                    <h4>Treatment Plan Update</h4>
-                                    <span class="message-date">Dec 25, 2024</span>
-                                </div>
-                                <p class="message-preview">We have updated your treatment plan based on...</p>
-                                <span class="message-from">From: Admin</span>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </main>
         </div>
     </div>
+
     <script src="../script.js"></script>
 </body>
 </html>

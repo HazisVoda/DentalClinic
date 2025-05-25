@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klinika</title>
-    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,24 +16,22 @@
 
     <!--Navbar Section-->
     <nav class="navbar navbar-light bg-darker navbar-expand-md" >
-         <a href="/index.html" class="navbar__logo">Super klinik</a>
+         <a href="index.php" class="navbar__logo">Epoka Clinic</a>
         <div class="navbar__toggle" id="mobile-menu">
             <span class="bar"></span> <span class="bar"></span>
             <span class="bar"></span>
         </div>
         <div class="navbar__menu navbar-collapse justify-content-end align-center" id="main-nav">
-            <a href="index.html" class="navbar__link" >Home</a>
-            <a href="services.html" class="navbar__link">Services</a>
-            <a href="staff.html" class="navbar__link">Staff</a>
-            <a href="contact-us.html" class="navbar__link">Contact Us</a>
-            <a href="login.php" class="navbar__link"><button class="button btn-danger btn-lg ">Sign Up</button></a>
+            <a href="index.php" class="navbar__link" >Home</a>
+            <a href="contactUs.php" class="navbar__link">Contact Us</a>
+            <a href="login.php" class="navbar__link"><button class="button btn-danger btn-lg ">Login</button></a>
         </div> 
     </nav>
 
     <!--Hero Section-->
     <div class="hero">
         <div class="hero__content">
-            <h1 class="animate-hero fw-bold">Klinik</h1>
+            <h1 class="animate-hero fw-bold">Epoka Clinic</h1>
         </div>
     </div>
 
@@ -156,43 +154,6 @@
         </div>
     </section>
 
-    <!-- Email Section-->
-    <div id="email" class="email">
-        <div class="email__content">
-            <h1 class="animate-email fw-bold">Be part of our Family now and earn a 10% DISCOUNT for your next routine check up</h1>
-            <p class="animate-email fw-bold">Sign Up now and recive members-only perks!</p>
-            <form class="row g-3 animate-email" method="POST" action="#message_student">
-                <input type="hidden" name="csrfmiddlewaretoken" value="58kTKS7KjBvgj6EXWkiTMbaf6coWEA69iz5tiEmrjll44pdHM5QvYdmiR43rwuyb">
-                <div class="col-sm-12 col-md-6 try ">
-                <input type="text" class="form-control" id="name" name="name" placeholder="Name" required="" fdprocessedid="mcm5eq">
-                </div>
-                <div class="col-sm-12 col-md-6">
-                <input type="text" class="form-control" id="surname" name="surname" placeholder="Surname" required="" fdprocessedid="swuzmi">
-                </div>
-                <div class="col-sm-12 col-md-6">
-                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required="" fdprocessedid="osi9a9">
-                </div>
-                <div class="col-sm-12 col-md-6">
-                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Number" required="" fdprocessedid="xqgazc">
-                </div>
-                <div class="col-sm-12">
-                <select class="form-select" id="Plan" name="training" required="" fdprocessedid="bbyntf">
-                <option selected="" value="" class="shadow-inset">Pick Plan</option>
-                <option value="Starter">Starter</option>
-                <option value="Silver">Silver</option>
-                <option value="Gold">Gold</option>
-                </div>
-                <div class="col-12">
-                <textarea class="form-control msg" placeholder="Your message" name="message" id="message" required=""></textarea>
-                </div>
-                <div class="col-12 text-end mt-5 pe-4 submit">
-                <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" value="03ADUVZwCOIcOlKSnz_IUSKcOVRSSwjHOouJXg-O7Kbir8-UaU_251wBwq14QZ38mLjOyAgQR_6G6YeEdjfmIsnpCV6ZLRdv73Wc4I5ga1d37bl7Ru_PGUxfOf5oYMznw3a5hrjHGie_MMjjoyrqfzg67x2qNH_DsiXZwdpKnO7tJpDbYOTw5NaNvqX7aUtvcqedib_CO7mzcnYw7Ll9u85iFfOrMrNfNTyiQBQHpB75VLWoPwOLp7HhK_adkNjZ2tOyVjsd56G-uINQHcnhRYlxTN-RrcBz2u-Xgg_pRrLKNx8zzFXSqLnNiFQrIIt5qd7y1SSDC3ZPE465fSLMgJTGUlukKL4IplM6fUTs2RiHfC-l6l9AM-l9et8lXMoSGbuTunKybkSP2WH7PZcLlsWaIKbPfx2ohAR4Y0kRNCNsflf-Z-mbW38-VyK-36CLTYRfSEDTPMLyOe-bdJPL3goTXz2pw9THjfomhTjXictXYrScbdDQ4DCwgxEVyU_zuk3HCyfNbEU8cteHSr1ZRFTYacgwzXpd6KQsg8NIoblr5EKLm6ma92lFs">
-                <button type="submit" name="student_button" class="button btn-md btn-sign me-lg-5" fdprocessedid="oukca">Sign Up</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Footer Section -->
     <footer class="footer">
         <div class="footer__container">
@@ -204,23 +165,8 @@
             <div class="footer__group">
                 <div class="footer__links">
                     <h2 class="footer__title">Contact Us</h2>
-                    <a href="contact-us.html" class="footer__link">Contact</a>
-                    <a href="contact-us.html" class="footer__link">Support</a>
-                    <a href="contact-us.html" class="footer__link">Sponsorships</a>
-                </div>
-
-                <div class="footer__links">
-                    <h2 class="footer__title">Memberships</h2>
-                    <a href="plans.html" class="footer__link">Pricing</a>
-                    <a href="plans.html" class="footer__link">Plans</a>
-                    <a href="plans.html" class="footer__link">FAQ</a>
-                </div>
-
-                <div class="footer__links">
-                    <h2 class="footer__title">Social Media</h2>
-                    <a href="#" class="footer__link">Instagram</a>
-                    <a href="#" class="footer__link">Facebook</a>
-                    <a href="#" class="footer__link">TikTok</a>
+                    <a href="contactUs.php" class="footer__link">Contact</a>
+                    <a href="contactUs.php" class="footer__link">Support</a>
                 </div>
             </div>
         </div>

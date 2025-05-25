@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klinik</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Epoka Clinic</title>
+    <link rel="stylesheet" href="style/home.css">
     <link 
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
@@ -20,17 +20,15 @@
 <body>
     <!--Navbar Section-->
     <nav class="navbar navbar-light bg-darker navbar-expand-md" >
-         <a href="/index.html" class="navbar__logo">Super klinik</a>
+         <a href="index.php" class="navbar__logo">Epoka Clinic</a>
         <div class="navbar__toggle" id="mobile-menu">
             <span class="bar"></span> <span class="bar"></span>
             <span class="bar"></span>
         </div>
         <div class="navbar__menu navbar-collapse justify-content-end align-center" id="main-nav">
-            <a href="index.html" class="navbar__link" >Home</a>
-            <a href="services.html" class="navbar__link">Services</a>
-            <a href="staff.html" class="navbar__link">Staff</a>
+            <a href="index.php" class="navbar__link">Home</a>
             <a href="contact-us.html" class="navbar__link">Contact Us</a>
-            <a href="sign-up.html" class="navbar__link"><button class="button btn-danger btn-lg ">Sign Up</button></a>
+            <a href="login.php" class="navbar__link"><button class="button btn-danger btn-lg ">Login</button></a>
         </div> 
     </nav>
 
@@ -38,7 +36,7 @@
     <section class="contact">
         <div class="content ">
             <h2 class="animate-marova">Contact us</h2>
-            <p class="animate-marova">For any misunderstanding please Contact Us below </p>
+            <p class="animate-marova">If you are interested, please contact us below. </p>
         </div>
         <div class="container">
             <div class="contactInfo">
@@ -92,28 +90,13 @@
     <div class="footer">
         <div class="footer__wrapper">
             <div class="footer__desc">
-                <h1>Klinik Dentar</h1>
-                <P>Dental Clinic located in Siri Kodra.street</P>
+                <h1>Epoka Clinic</h1>
+                <P>Dental Clinic located in "Siri Kodra" street</P>
             </div>
             <div class="footer__links">
                 <h2 class="footer__title">Contact Us</h2>
-                <a href="contact-us.html" class="footer__link" >Contact</a>
-                <a href="contact-us.html" class="footer__link">Support</a>
-                <a href="contact-us.html" class="footer__link">Sponsorships</a>
-            </div>
-        </div>
-        <div class="footer__wrapper">
-            <div class="footer__links">
-                <h2 class="footer__title">Memberships</h2>
-                <a href="plans.html" class="footer__link">Pricing</a>
-                <a href="plans.html" class="footer__link">Plans</a>
-                <a href="plans.html" class="footer__link">FAQ</a>
-            </div>
-            <div class="footer__links">
-                <h2 class="footer__title">SocialMedia</h2>
-                <a href="" class="footer__link">Instagram</a>
-                <a href="" class="footer__link">Facebook</a>
-                <a href="" class="footer__link">TikTok</a>
+                <a href="contactUs.php" class="footer__link" >Contact</a>
+                <a href="contactUs.php" class="footer__link">Support</a>
             </div>
         </div>
     </div>
@@ -122,6 +105,6 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="jsClinic.js"></script>
+    <script src="style/jsClinic.js"></script>
 </body>
 </html>

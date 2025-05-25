@@ -23,6 +23,14 @@ if ($_SESSION['role_id'] != $dentistRoleId) {
 
 $dentistId = $_SESSION['user_id'];
 
+// Get dentist name
+$stmt = mysqli_prepare($conn, "SELECT name FROM users WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $dentistId);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $dentistName);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
+
 // Prepare client role ID
 $roleStmt = mysqli_prepare($conn, 'SELECT id FROM roles WHERE name = ?');
 $clientRoleName = 'client';
@@ -112,45 +120,224 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+// Get unread message count
+$stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND is_read = 0");
+mysqli_stmt_bind_param($stmt, 'i', $dentistId);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $unread_count);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><?= $id ? 'Edit Client' : 'Add New Client' ?></title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $id ? 'Edit' : 'Add New' ?> Patient - Dental Clinic</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1><?= $id ? 'Edit Client' : 'Add New Client' ?></h1>
-        <nav>
-            <a href="clients.php">← Back to My Clients</a>
+    <div id="dentistDashboard" class="page active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-tooth"></i>
+                <span>Dental Clinic</span>
+            </div>
+            <div class="nav-user">
+                <span>Welcome, Dr. <?= htmlspecialchars($dentistName) ?>!</span>
+                <a href="../logout.php" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
         </nav>
-    </header>
 
-    <?php if (!empty($errors)): ?>
-        <ul class="errors">
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+        <div class="dashboard-container">
+            <aside class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="dentist_dashboard.php">
+                            <i class="fas fa-home"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="timetable.php">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>Timetable</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="clients.php">
+                            <i class="fas fa-users"></i>
+                            <span>Patients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="appointments.php">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Appointments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="messages.php">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="badge"><?= $unread_count ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
 
-    <form method="post">
-        <label>Name:<br>
-            <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
-        </label><br><br>
+            <main class="main-content">
+                <div class="content-section active">
+                    <div class="form-header">
+                        <h2>
+                            <i class="fas fa-<?= $id ? 'user-edit' : 'user-plus' ?>"></i>
+                            <?= $id ? 'Edit Patient' : 'Add New Patient' ?>
+                        </h2>
+                        <a href="clients.php" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Patients
+                        </a>
+                    </div>
 
-        <label>Email:<br>
-            <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
-        </label><br><br>
+                    <?php if (!empty($errors)): ?>
+                        <div class="error-message">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <ul>
+                                <?php foreach ($errors as $error): ?>
+                                    <li><?= htmlspecialchars($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
-        <label>Password:<br>
-            <input type="password" name="password" <?= $id ? '' : 'required' ?>>
-            <?php if ($id): ?><small>Leave blank to keep current password</small><?php endif; ?>
-        </label><br><br>
+                    <div class="appointment-form">
+                        <form method="post">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="name">
+                                        <i class="fas fa-user"></i> Full Name
+                                    </label>
+                                    <input type="text" 
+                                           id="name"
+                                           name="name" 
+                                           value="<?= htmlspecialchars($name) ?>" 
+                                           required
+                                           placeholder="Enter patient's full name">
+                                </div>
 
-        <button type="submit"><?= $id ? 'Update Client' : 'Create Client' ?></button>
-    </form>
+                                <div class="form-group">
+                                    <label for="email">
+                                        <i class="fas fa-envelope"></i> Email Address
+                                    </label>
+                                    <input type="email" 
+                                           id="email"
+                                           name="email" 
+                                           value="<?= htmlspecialchars($email) ?>" 
+                                           required
+                                           placeholder="Enter email address">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">
+                                    <i class="fas fa-lock"></i> Password
+                                </label>
+                                <input type="password" 
+                                       id="password"
+                                       name="password" 
+                                       <?= $id ? '' : 'required' ?>
+                                       placeholder="<?= $id ? 'Leave blank to keep current password' : 'Enter a secure password' ?>">
+                                <?php if ($id): ?>
+                                    <small class="form-help">Leave blank to keep current password</small>
+                                <?php else: ?>
+                                    <small class="form-help">Patient will use this password to log in to their account</small>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <?= $id ? 'Update Patient' : 'Add Patient' ?>
+                                </button>
+                                <a href="clients.php" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <?php if (!$id): ?>
+                    <div class="quick-actions">
+                        <h3>After Adding Patient</h3>
+                        <div class="action-buttons">
+                            <div class="action-btn" onclick="showScheduleInfo()">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Schedule Appointment</span>
+                            </div>
+                            <div class="action-btn" onclick="showMessageInfo()">
+                                <i class="fas fa-envelope"></i>
+                                <span>Send Welcome Message</span>
+                            </div>
+                            <div class="action-btn" onclick="showHistoryInfo()">
+                                <i class="fas fa-file-medical"></i>
+                                <span>Add Medical History</span>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        // Auto-generate email from name
+        document.getElementById('name').addEventListener('input', function() {
+            const name = this.value.toLowerCase().replace(/\s+/g, '.');
+            const emailField = document.getElementById('email');
+            
+            if (name && !emailField.value) {
+                emailField.placeholder = name + '@example.com';
+            }
+        });
+
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strength = getPasswordStrength(password);
+            
+            // You could add a visual strength indicator here
+        });
+
+        function getPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            return strength;
+        }
+
+        function showScheduleInfo() {
+            alert('After adding the patient, you can schedule their first appointment from the patient list.');
+        }
+
+        function showMessageInfo() {
+            alert('You can send a welcome message to the patient from the Messages section.');
+        }
+
+        function showHistoryInfo() {
+            alert('Medical history functionality would be implemented here.');
+        }
+    </script>
 </body>
 </html>

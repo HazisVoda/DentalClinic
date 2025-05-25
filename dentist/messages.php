@@ -9,6 +9,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 2) {
 include '../db.php';
 $dentist_id = $_SESSION['user_id'];
 
+// Check for success message from compose form
+$showSentMessage = isset($_GET['sent']) && $_GET['sent'] == '1';
+
+// Get dentist name
+$stmt = mysqli_prepare($conn, "SELECT name FROM users WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $dentist_id);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $dentistName);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
+
 // 2) View a message (mark as read + fetch details)
 $viewMessage = null;
 if (!empty($_GET['view'])) {
@@ -73,6 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         if (mysqli_stmt_execute($ins)) {
             $success = true;
+            // Clear form data
+            $receiver_id = '';
+            $subject = '';
+            $body = '';
         } else {
             $errors[] = "DB error: " . mysqli_error($conn);
         }
@@ -112,7 +127,7 @@ mysqli_stmt_bind_param($cstmt, 'i', $dentist_id);
 mysqli_stmt_execute($cstmt);
 mysqli_stmt_bind_result($cstmt, $rid, $rname);
 while (mysqli_stmt_fetch($cstmt)) {
-    $recipients[$rid] = $rname . " (Client)";
+    $recipients[$rid] = $rname . " (Patient)";
 }
 mysqli_stmt_close($cstmt);
 
@@ -128,97 +143,197 @@ while (mysqli_stmt_fetch($astmt)) {
     $recipients[$rid] = $rname . " (Admin)";
 }
 mysqli_stmt_close($astmt);
+
+// Get unread message count
+$stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND is_read = 0");
+mysqli_stmt_bind_param($stmt, 'i', $dentist_id);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $unread_count);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dentist Messages</title>
-  <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Dental Clinic</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Your Messages</h1>
-  <nav>
-    <a href="dentist_dashboard.php">Dashboard</a> |
-    <a href="clients.php">My Clients</a> |
-    <a href="appointments.php">My Appointments</a> |
-    <a href="timetable.php">Timetable</a> |
-    <a href="../logout.php">Logout</a>
-  </nav>
+    <div id="dentistDashboard" class="page active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-tooth"></i>
+                <span>Dental Clinic</span>
+            </div>
+            <div class="nav-user">
+                <span>Welcome, Dr. <?= htmlspecialchars($dentistName) ?>!</span>
+                <a href="../logout.php" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </nav>
 
-  <!-- Inbox -->
-  <section>
-    <h2>Inbox</h2>
-    <?php if (empty($inbox)): ?>
-      <p>No messages.</p>
-    <?php else: ?>
-      <table>
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>From</th>
-            <th>Subject</th>
-            <th>Received</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($inbox as $msg): ?>
-            <tr>
-              <td><?= $msg['is_read'] ? 'Read' : '<strong>New</strong>' ?></td>
-              <td><?= htmlspecialchars($msg['sender_name']) ?></td>
-              <td><a href="?view=<?= $msg['id'] ?>"><?= htmlspecialchars($msg['subject']) ?></a></td>
-              <td><?= date('Y-m-d H:i', strtotime($msg['sent_at'])) ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    <?php endif; ?>
+        <div class="dashboard-container">
+            <aside class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="dentist_dashboard.php">
+                            <i class="fas fa-home"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="timetable.php">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>Timetable</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="clients.php">
+                            <i class="fas fa-users"></i>
+                            <span>Patients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="appointments.php">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Appointments</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="messages.php">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="badge"><?= $unread_count ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
 
-    <!-- View a single message -->
-    <?php if ($viewMessage): ?>
-      <article class="message-view">
-        <h3><?= htmlspecialchars($viewMessage['subject']) ?></h3>
-        <p><em>From <?= htmlspecialchars($viewMessage['sender_name']) ?> on 
-           <?= date('Y-m-d H:i', strtotime($viewMessage['sent_at'])) ?></em></p>
-        <div><?= nl2br(htmlspecialchars($viewMessage['body'])) ?></div>
-      </article>
-    <?php endif; ?>
-  </section>
+            <main class="main-content">
+                <div class="content-section active">
+                    <h2>Messages</h2>
+                    
+                    <!-- Success Message -->
+                    <?php if ($showSentMessage): ?>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            Message sent successfully!
+                        </div>
+                    <?php endif; ?>
 
-  <!-- Send New Message -->
-  <section>
-    <h2>Send a New Message</h2>
-    <?php if ($success): ?>
-      <p class="success">Message sent!</p>
-    <?php else: ?>
-      <?php if ($errors): ?>
-        <div class="errors">
-          <ul><?php foreach ($errors as $e): ?><li><?=htmlspecialchars($e)?></li><?php endforeach; ?></ul>
+                    <!-- Success Message -->
+                    <?php if ($success): ?>
+                        <div class="success-message">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3>Message Sent Successfully!</h3>
+                            <p>Your message has been delivered.</p>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Error Messages -->
+                    <?php if ($errors): ?>
+                        <div class="error-message">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <ul>
+                                <?php foreach ($errors as $e): ?>
+                                    <li><?= htmlspecialchars($e) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- View Single Message -->
+                    <?php if ($viewMessage): ?>
+                        <div class="message-view">
+                            <div class="message-view-header">
+                                <a href="messages.php" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Inbox
+                                </a>
+                            </div>
+                            <div class="message-view-content">
+                                <h3><?= htmlspecialchars($viewMessage['subject']) ?></h3>
+                                <div class="message-meta">
+                                    <span><i class="fas fa-user"></i> From: <?= htmlspecialchars($viewMessage['sender_name']) ?></span>
+                                    <span><i class="fas fa-clock"></i> <?= date('M j, Y \a\t g:i A', strtotime($viewMessage['sent_at'])) ?></span>
+                                </div>
+                                <div class="message-body">
+                                    <?= nl2br(htmlspecialchars($viewMessage['body'])) ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <!-- Inbox and Compose -->
+                        <div class="dashboard-grid">
+                            <!-- Inbox -->
+                            <div class="messages-container">
+                                <div class="message-compose">
+                                    <h3>Inbox</h3>
+                                    <br>
+                                    <?php if (empty($inbox)): ?>
+                                        <div class="no-messages">
+                                            <div class="no-messages-icon">
+                                                <i class="fas fa-inbox"></i>
+                                            </div>
+                                            <h3>No messages yet</h3>
+                                            <p>You don't have any messages in your inbox.</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="message-list">
+                                            <?php foreach ($inbox as $msg): ?>
+                                                <div class="message-item <?= !$msg['is_read'] ? 'unread' : '' ?>" 
+                                                     onclick="viewMessage(<?= $msg['id'] ?>)">
+                                                    <div class="message-header">
+                                                        <h4><?= htmlspecialchars($msg['subject']) ?></h4> &nbsp; &nbsp;
+                                                        <span class="message-date">
+                                                            <?= date('M j, g:i A', strtotime($msg['sent_at'])) ?>
+                                                        </span>
+                                                    </div>
+                                                    <div class="message-from">
+                                                        <i class="fas fa-user"></i> <?= htmlspecialchars($msg['sender_name']) ?>
+                                                    </div>
+                                                    <?php if (!$msg['is_read']): ?>
+                                                        <div class="unread-indicator">
+                                                            <i class="fas fa-circle"></i> New
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <br>
+
+                            <!-- Compose Message Button -->
+                            <div class="messages-container">
+                                <div class="compose-section">
+                                    <a href="message_form.php" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Send Message
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </main>
         </div>
-      <?php endif; ?>
-      <form method="post">
-        <div>
-          <label for="receiver_id">To:</label>
-          <select name="receiver_id" id="receiver_id" required>
-            <option value="">-- Select Recipient --</option>
-            <?php foreach ($recipients as $rid => $label): ?>
-              <option value="<?=$rid?>" <?= (isset($receiver_id)&&$receiver_id==$rid)?'selected':''?>>
-                <?=htmlspecialchars($label)?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div>
-          <label for="subject">Subject:</label><br>
-          <input type="text" name="subject" id="subject" value="<?=htmlspecialchars($subject ?? '')?>" required>
-        </div>
-        <div>
-          <label for="body">Message:</label><br>
-          <textarea name="body" id="body" rows="6" required><?=htmlspecialchars($body ?? '')?></textarea>
-        </div>
-        <button type="submit">Send</button>
-      </form>
-    <?php endif; ?>
-  </section>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function viewMessage(messageId) {
+            window.location.href = 'messages.php?view=' + messageId;
+        }
+    </script>
 </body>
 </html>
