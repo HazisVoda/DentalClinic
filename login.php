@@ -1,7 +1,6 @@
 <?php
 session_start();
-// include your existing MySQLi connection
-require_once __DIR__ . '/db.php'; // defines $conn
+require_once __DIR__ . '/db.php';
 
 $errors = [];
 
@@ -48,27 +47,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Login to Your Account</h2>
-    <?php if ($errors): ?>
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-tooth"></i>
+                    <h1>Dental Clinic</h1>
+                    <p>Management System</p>
+                </div>
 
-    <form method="post" action="">
-        <label>Email:<br>
-            <input type="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>" required>
-        </label><br><br>
-        <label>Password:<br>
-            <input type="password" name="password" required>
-        </label><br><br>
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="register.php">Register here</a>.</p>
+                <?php if ($errors): ?>
+                    <ul>
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                
+                <form id="loginForm" class="login-form" method="post" action="">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+

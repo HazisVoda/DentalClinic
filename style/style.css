@@ -116,7 +116,7 @@
     
 /*Hero Section*/
 .hero{
-    background: linear-gradient(to right, rgba(0,0,0, 0.4), rgba(0,0,0, 0.1)), url('home.jpg');
+    background: linear-gradient(to right, rgba(0,0,0, 0.4), rgba(0,0,0, 0.1)), url('images/home.jpg');
     height: 100vh;
     background-position: center;
     background-size:cover;
@@ -295,7 +295,7 @@
     rgba(0,0,0, 0.6) 35%, 
     rgba(0,0,0, 0.1) 100%
     ),
-    url('concept.jpg') center;
+    url('images/concept.jpg') center;
     background-size:cover;
     background-color: var(--white);
     height:max-content;
@@ -414,7 +414,7 @@ textarea.form-control:not(:placeholder-shown) ~ label {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2)), url(contactB.jpg);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2)), url('images/contactB.jpg');
     background-size: cover;
   }
 
