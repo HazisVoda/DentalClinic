@@ -1,7 +1,6 @@
 <?php
 require_once("db.php");
 require_once __DIR__.'/check_auth.php';
-$flag = false;
 
 if(isset($_POST['name']) && isset($_POST['email'])) {
     $name = htmlspecialchars($_POST['name'] ?? '');
@@ -18,7 +17,9 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
     if (empty($errors)) {
         $query = "INSERT INTO client_requests (name, email) VALUES ('$name', '$email')";
         mysqli_query($conn, $query);
-        $flag = true;
+        header('Location: index.php?application=1#join');
+        exit;
+
     }
 
 }
@@ -127,7 +128,7 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
     </div>
      
     <!--Contact Us-->
-    <section class="contact">
+    <section class="contact" id="join">
         <div class="content ">
             <h2 class="animate-marova">Join Us </h2>
             <h3 class="animate-marova"> Request an account in our system</h3>
@@ -156,33 +157,42 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
                     </div>
                     </div>
                 </div>
-                
-            <div class="contactForm animate-box">
-                <form action="" method="post" class="animate-fjal">
-                    <h2 class="fw-bold">Send Message</h2>
-                    <div class="inputBox">
-                        <input type="text" name="name" required="required">
-                        <span>Full Name</span>
-                    </div>
-                    <div class="inputBox">
-                        <input type="text" name="email" required="required">
-                        <span>Email</span>
-                    </div>
-                    <div class="inputBox">
-                        <button class="button btn-danger fw-bold" type="submit" fdprocessedid="ypirrj">Send Message</button>
-                    </div>
-                </form>
-                <br>
-                <p><?php if($flag) echo "Your application will be reviewed shortly!"?></p>
+
+                <div class="contactForm animate-box">
+                    <form action="#join" method="post" class="animate-fjal">
+                        <h2 class="fw-bold">Request Account</h2>
+                        <div class="inputBox">
+                            <input type="text" name="name" required="required">
+                            <span>Full Name</span>
+                        </div>
+                        <div class="inputBox">
+                            <input type="text" name="email" required="required">
+                            <span>Email</span>
+                        </div>
+                        <div class="inputBox">
+                            <button class="button btn-danger fw-bold" type="submit" fdprocessedid="ypirrj">Submit</button>
+                        </div>
+                    </form>
+                    <br>
+                    <?php if (isset($_GET['application'])): ?>
+                        <br>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="alert-content">
+                                <h4>Submitted!</h4>
+                                <p>Your application will be reviewed shortly.</p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
     <!-- Footer Section -->
     <footer class="footer">
         <div class="footer__container">
             <div class="footer__desc">
-                <h1>Klinik Dentar</h1>
+                <h1>Epoka Clinic</h1>
                 <p>Dental Clinic located in Siri Kodra street</p>
             </div>
 

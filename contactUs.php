@@ -91,7 +91,7 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
 
                 <div class="contactForm animate-box">
                     <form action="#join" method="post" class="animate-fjal">
-                        <h2 class="fw-bold">Send Message</h2>
+                        <h2 class="fw-bold">Request Account</h2>
                         <div class="inputBox">
                             <input type="text" name="name" required="required">
                             <span>Full Name</span>
