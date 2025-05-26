@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="login-card">
                 <div class="login-header">
                     <i class="fas fa-tooth"></i>
-                    <h1>Dental Clinic</h1>
+                    <h1>Epoka Clinic</h1>
                     <p>Management System</p>
                 </div>
 

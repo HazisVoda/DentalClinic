@@ -127,7 +127,7 @@ mysqli_stmt_close($stmt);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Dental Clinic</title>
+    <title>Admin Dashboard - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -451,7 +451,7 @@ mysqli_stmt_close($stmt);
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic - Admin</span>
+                <span>Epoka Clinic - Admin</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
@@ -477,6 +477,12 @@ mysqli_stmt_close($stmt);
                         </a>
                     </li>
                     <li>
+                        <a href="view_requests.php">
+                            <i class="fas fa-user-clock"></i>
+                            <span>Account Requests</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="appointments.php">
                             <i class="fas fa-calendar"></i>
                             <span>Appointments</span>
@@ -495,12 +501,6 @@ mysqli_stmt_close($stmt);
                             <?php if ($stats['unread_messages'] > 0): ?>
                                 <span class="badge"><?= $stats['unread_messages'] ?></span>
                             <?php endif; ?>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="view_requests.php">
-                            <i class="fas fa-user-clock"></i>
-                            <span>Account Requests</span>
                         </a>
                     </li>
                 </ul>
@@ -634,43 +634,6 @@ mysqli_stmt_close($stmt);
                             <div class="stat-change">
                                 <i class="fas fa-bell"></i> Requires attention
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="dashboard-section">
-                        <div class="section-header">
-                            <h3 class="section-title">Quick Actions</h3>
-                        </div>
-                        <div class="quick-actions-grid">
-                            <a href="user_form.php" class="action-card">
-                                <div class="action-icon users">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="action-title">Add New User</div>
-                                <p class="action-description">Create dentist or client accounts</p>
-                            </a>
-                            <a href="appointment_form.php" class="action-card">
-                                <div class="action-icon appointments">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="action-title">Schedule Appointment</div>
-                                <p class="action-description">Book new patient appointments</p>
-                            </a>
-                            <a href="message_form.php" class="action-card">
-                                <div class="action-icon messages">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div class="action-title">Send Message</div>
-                                <p class="action-description">Communicate with staff and patients</p>
-                            </a>
-                            <a href="feedback.php" class="action-card">
-                                <div class="action-icon feedback">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div class="action-title">View Feedback</div>
-                                <p class="action-description">Review patient satisfaction</p>
-                            </a>
                         </div>
                     </div>
 

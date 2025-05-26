@@ -82,7 +82,7 @@ foreach ($inbox as $msg) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - Dental Clinic</title>
+    <title>Messages - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -91,7 +91,7 @@ foreach ($inbox as $msg) {
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic - Admin</span>
+                <span>Epoka Clinic - Admin</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>

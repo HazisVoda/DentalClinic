@@ -1,3 +1,27 @@
+<?php
+require_once("db.php");
+$flag = false;
+
+if(isset($_POST['name']) && isset($_POST['email'])) {
+    $name = htmlspecialchars($_POST['name'] ?? '');
+    $email = htmlspecialchars($_POST['email'] ?? '');
+
+    $errors = [];
+
+    if (empty($name) || empty($email)) {
+        $errors[] = 'Email and password are required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid email format.';
+    }
+
+    if (empty($errors)) {
+        $query = "INSERT INTO client_requests (name, email) VALUES ('$name', '$email')";
+        mysqli_query($conn, $query);
+        $flag = true;
+    }
+
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,8 +59,8 @@
     <!--Contact Us-->
     <section class="contact">
         <div class="content ">
-            <h2 class="animate-marova">Contact us</h2>
-            <p class="animate-marova">If you are interested, please contact us below. </p>
+            <h2 class="animate-marova">Join Us </h2>
+            <h3 class="animate-marova"> Request an account in our system</h3>
         </div>
         <div class="container">
             <div class="contactInfo">
@@ -58,30 +82,28 @@
                 <div class="icon"><i class="fa-solid fa-envelope"></i></div>
                 <div class="text">
                         <h3 class="fw-bold">Email</h3>
-                        <a href="mailto:tartarajmarin@gmail.com" target="_blank">klinika@gmail.com</a>
+                        <a href="mailto:klinika.dentare311@gmail.com" target="_blank">klinika.dentare311@gmail.com</a>
                     </div>
                     </div>
                 </div>
                 
             <div class="contactForm animate-box">
-                <form class="animate-fjal">
+                <form action="" method="post" class="animate-fjal">
                     <h2 class="fw-bold">Send Message</h2>
                     <div class="inputBox">
-                        <input type="text" name="" required="required">
+                        <input type="text" name="name" required="required">
                         <span>Full Name</span>
                     </div>
                     <div class="inputBox">
-                        <input type="text" name="" required="required">
+                        <input type="text" name="email" required="required">
                         <span>Email</span>
-                    </div>
-                    <div class="inputBox">
-                        <textarea required="required"></textarea>
-                        <span>Type your Message...</span>
                     </div>
                     <div class="inputBox">
                         <button class="button btn-danger fw-bold" type="submit" fdprocessedid="ypirrj">Send Message</button>
                     </div>
                 </form>
+                <br>
+                <p><?php if($flag) echo "Your application will be reviewed shortly!"?></p>
             </div>
         </div>
     </section>

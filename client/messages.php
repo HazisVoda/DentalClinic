@@ -81,7 +81,7 @@ foreach ($inbox as $msg) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - Dental Clinic</title>
+    <title>Messages - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -90,7 +90,7 @@ foreach ($inbox as $msg) {
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic</span>
+                <span>Epoka Clinic</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($client_name) ?>!</span>
@@ -185,9 +185,6 @@ foreach ($inbox as $msg) {
                                         </div>
                                         <h3>No messages yet</h3>
                                         <p>You don't have any messages. Start a conversation with your dentist or admin.</p>
-                                        <a href="message_form.php" class="btn btn-primary">
-                                            <i class="fas fa-plus"></i> Send First Message
-                                        </a>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($inbox as $msg): ?>

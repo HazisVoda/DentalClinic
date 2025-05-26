@@ -103,7 +103,7 @@ mysqli_stmt_close($stmt);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Give Feedback - Dental Clinic</title>
+    <title>Give Feedback - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -112,7 +112,7 @@ mysqli_stmt_close($stmt);
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic</span>
+                <span>Epoka Clinic</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($client_name) ?>!</span>
@@ -161,14 +161,11 @@ mysqli_stmt_close($stmt);
                     
                     <?php if ($success): ?>
                         <div class="success-message">
-                            <div class="success-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
                             <h3>Thank you for your feedback!</h3>
                             <p>Your feedback has been submitted successfully and will help us improve our services.</p>
+                            <br>
                             <div class="success-actions">
                                 <a href="client_dashboard.php" class="btn btn-primary">Back to Dashboard</a>
-                                <button onclick="location.reload()" class="btn btn-secondary">Give More Feedback</button>
                             </div>
                         </div>
                     <?php else: ?>

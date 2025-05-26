@@ -137,6 +137,7 @@ $feedback_entries = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $feedback_entries[] = $row;
 }
+
 mysqli_stmt_close($stmt);
 
 // Get statistics
@@ -180,7 +181,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback Management - Dental Clinic</title>
+    <title>Feedback Management - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -189,7 +190,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic - Admin</span>
+                <span>Epoka Clinic - Admin</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
@@ -252,6 +253,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
                             <p>Monitor and manage client feedback for all dentists</p>
                         </div>
                     </div>
+                    <br>
 
                     <?php if (isset($_GET['deleted'])): ?>
                         <div class="alert alert-success">
@@ -369,6 +371,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
                                 <p>Total Feedback</p>
                             </div>
                         </div>
+                        <br>
                         <div class="stat-card">
                             <div class="stat-icon rating">
                                 <i class="fas fa-star"></i>
@@ -378,6 +381,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
                                 <p>Average Rating</p>
                             </div>
                         </div>
+                        <br>
                         <div class="stat-card">
                             <div class="stat-icon pages">
                                 <i class="fas fa-file-alt"></i>
@@ -388,6 +392,7 @@ function buildPaginationUrl($page, $search, $rating, $dentist) {
                             </div>
                         </div>
                     </div>
+                    <br>
 
                     <!-- Feedback List -->
                     <div class="feedback-container">

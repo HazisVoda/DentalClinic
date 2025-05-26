@@ -71,7 +71,7 @@ mysqli_stmt_close($stmt);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Account Requests - Dental Clinic</title>
+    <title>Client Account Requests - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -80,7 +80,7 @@ mysqli_stmt_close($stmt);
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic - Admin</span>
+                <span>Epoka Clinic - Admin</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
@@ -140,12 +140,13 @@ mysqli_stmt_close($stmt);
                     <div class="page-header">
                         <h2>
                             <i class="fas fa-user-clock"></i>
-                            Client Account Requests
+                            Account Requests
                         </h2>
                         <a href="users.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Users
                         </a>
                     </div>
+                    <br>
 
                     <?php if (isset($_GET['deleted'])): ?>
                         <div class="alert alert-success">

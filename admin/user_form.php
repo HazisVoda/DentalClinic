@@ -188,7 +188,7 @@ mysqli_stmt_close($stmt);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $id ? 'Edit User' : ($request_id ? 'Activate Account Request' : 'Create New User') ?> - Dental Clinic</title>
+    <title><?= $id ? 'Edit User' : ($request_id ? 'Activate Account Request' : 'Create New User') ?> - Epoka Clinic</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -197,7 +197,7 @@ mysqli_stmt_close($stmt);
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic - Admin</span>
+                <span>Epoka Clinic - Admin</span>
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
@@ -266,15 +266,6 @@ mysqli_stmt_close($stmt);
                                     Create New User
                                 <?php endif; ?>
                             </h2>
-                            <p>
-                                <?php if ($request_id): ?>
-                                    Convert client request into active user account
-                                <?php elseif ($id): ?>
-                                    Update user information and permissions
-                                <?php else: ?>
-                                    Add a new user to the dental clinic system
-                                <?php endif; ?>
-                            </p>
                         </div>
                         <div class="page-actions">
                             <a href="<?= $request_id ? 'view_requests.php' : 'users.php' ?>" class="btn btn-secondary">
@@ -283,6 +274,7 @@ mysqli_stmt_close($stmt);
                             </a>
                         </div>
                     </div>
+                    <br>
 
                     <?php if ($success): ?>
                         <div class="alert alert-success">
@@ -419,25 +411,6 @@ mysqli_stmt_close($stmt);
                                 </a>
                             </div>
                         </form>
-                    </div>
-
-                    <!-- Role Information -->
-                    <div class="info-section">
-                        <h3><i class="fas fa-info-circle"></i> Role Information</h3>
-                        <div class="role-info-grid">
-                            <div class="role-info-item">
-                                <h4><i class="fas fa-user-shield"></i> Admin</h4>
-                                <p>Full system access, can manage all users, appointments, and settings.</p>
-                            </div>
-                            <div class="role-info-item">
-                                <h4><i class="fas fa-user-md"></i> Dentist</h4>
-                                <p>Can manage their appointments, view assigned clients, and access treatment records.</p>
-                            </div>
-                            <div class="role-info-item">
-                                <h4><i class="fas fa-user"></i> Client</h4>
-                                <p>Can book appointments, view their records, and provide feedback.</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </main>

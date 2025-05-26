@@ -514,10 +514,8 @@ table tr:hover {
 /* Messages */
 .message-list {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
 }
-
 .message-item {
   padding: 20px;
   border-bottom: 1px solid #e9ecef;
@@ -1394,7 +1392,7 @@ table tr:hover {
       padding: 32px;
       margin-bottom: 32px;
       color: #4c51bf;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   }
 
   .filters-header {
@@ -1672,6 +1670,26 @@ table tr:hover {
       color: #6b7280;
       font-size: 14px;
   }
+
+  .confirm-overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 999;
+}
+.confirm-box {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
         
 
