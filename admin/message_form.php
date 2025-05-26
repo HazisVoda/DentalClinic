@@ -122,7 +122,7 @@ if (isset($_GET['template'])) {
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
-                <a href="../logout.php" class="logout-btn">
+                <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
