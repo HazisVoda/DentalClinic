@@ -1,8 +1,8 @@
 <?php
-    $host = 'localhost';
+    $host = 'switchback.proxy.rlwy.net:14889';
     $username = 'root';
-    $password = '';
-    $database = 'clinic';
+    $password = 'dqyKLGTtpWKDvGAtJDjXMVumRGfehYus';
+    $database = 'railway';
 
     $conn = new mysqli($host, $username, $password, $database);
 

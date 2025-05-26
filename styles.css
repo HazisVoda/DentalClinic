@@ -1124,3 +1124,15 @@ table tr:hover {
 .action-btn.edit:hover {
   color: #6c757d;
 }
+
+.form-group.remember {
+  display: inline-flex;
+  align-items: center;
+  justify-content: left;
+  width: 100%;
+}
+
+.form-group.remember label {
+  width: 100%;
+  margin-left: -80px;
+}

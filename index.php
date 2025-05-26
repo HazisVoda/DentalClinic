@@ -172,7 +172,8 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
                         <button class="button btn-danger fw-bold" type="submit" fdprocessedid="ypirrj">Send Message</button>
                     </div>
                 </form>
-                <p><?php if($flag) echo "Your application will be reviewed shortly"?></p>
+                <br>
+                <p><?php if($flag) echo "Your application will be reviewed shortly!"?></p>
             </div>
         </div>
     </section>

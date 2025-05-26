@@ -125,7 +125,7 @@ mysqli_stmt_close($stmt);
             </div>
             <div class="nav-user">
                 <span>Welcome, Dr. <?= htmlspecialchars($dentistName) ?>!</span>
-                <a href="../logout.php" class="logout-btn">
+                <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>

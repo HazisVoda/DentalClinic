@@ -163,7 +163,7 @@ mysqli_stmt_close($stmt);
             </div>
             <div class="nav-user">
                 <span>Welcome, Dr. <?= htmlspecialchars($dentistName) ?>!</span>
-                <a href="../logout.php" class="logout-btn">
+                <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
@@ -212,13 +212,13 @@ mysqli_stmt_close($stmt);
                 <div class="content-section active">
                     <div class="form-header">
                         <h2>
-                            <i class="fas fa-<?= $appointment_id ? 'edit' : 'plus' ?>"></i>
                             <?= $appointment_id ? 'Edit' : 'New' ?> Appointment
                         </h2>
                         <a href="appointments.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Appointments
                         </a>
                     </div>
+                    <br>
 
                     <?php if ($errors): ?>
                         <div class="error-message">
@@ -324,23 +324,32 @@ mysqli_stmt_close($stmt);
                         <h3>Quick Time Slots</h3>
                         <p>Click a time slot to quickly set appointment times:</p>
                         <div class="time-slots">
-                            <button type="button" onclick="setQuickTime('09:00', '10:00')" class="time-slot-btn">
-                                9:00 AM - 10:00 AM
+                            <button type="button" onclick="setQuickTime('09:00', '09:59')" class="time-slot-btn">
+                                9:00 AM - 09:59 AM
                             </button>
-                            <button type="button" onclick="setQuickTime('10:00', '11:00')" class="time-slot-btn">
-                                10:00 AM - 11:00 AM
+                            <button type="button" onclick="setQuickTime('10:00', '10:59')" class="time-slot-btn">
+                                10:00 AM - 10:59 AM
                             </button>
-                            <button type="button" onclick="setQuickTime('11:00', '12:00')" class="time-slot-btn">
-                                11:00 AM - 12:00 PM
+                            <button type="button" onclick="setQuickTime('11:00', '11:59')" class="time-slot-btn">
+                                11:00 AM - 11:59 AM
                             </button>
-                            <button type="button" onclick="setQuickTime('14:00', '15:00')" class="time-slot-btn">
-                                2:00 PM - 3:00 PM
+                            <button type="button" onclick="setQuickTime('14:00', '14:59')" class="time-slot-btn">
+                                2:00 PM - 2:59 PM
                             </button>
-                            <button type="button" onclick="setQuickTime('15:00', '16:00')" class="time-slot-btn">
-                                3:00 PM - 4:00 PM
+                            <button type="button" onclick="setQuickTime('15:00', '15:59')" class="time-slot-btn">
+                                3:00 PM - 3:59 PM
                             </button>
-                            <button type="button" onclick="setQuickTime('16:00', '17:00')" class="time-slot-btn">
-                                4:00 PM - 5:00 PM
+                            <button type="button" onclick="setQuickTime('16:00', '16:59')" class="time-slot-btn">
+                                4:00 PM - 4:59 PM
+                            </button>
+                            <button type="button" onclick="setQuickTime('17:00', '17:59')" class="time-slot-btn">
+                                5:00 PM - 5:59 PM
+                            </button>
+                            <button type="button" onclick="setQuickTime('18:00', '18:59')" class="time-slot-btn">
+                                6:00 PM - 6:59 PM
+                            </button>
+                            <button type="button" onclick="setQuickTime('19:00', '19:59')" class="time-slot-btn">
+                                7:00 PM - 7:59 PM
                             </button>
                         </div>
                     </div>
