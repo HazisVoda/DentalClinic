@@ -54,11 +54,6 @@ if ($request_id) {
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_close($stmt);
 
-    $stmt = mysqli_prepare($conn, "SELECT id FROM roles WHERE name = 'dentist'");
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $role_id);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
 
     while ($r = mysqli_fetch_assoc($roleRes)) {
         if ($r['id'] == 3)
@@ -72,22 +67,8 @@ else {
 }
 
 // Get role IDs
-$clientRoleId = null;
-$dentistRoleId = null;
-foreach ($roles as $r) {
-    if ($r['name'] === 'client') $clientRoleId = $r['id'];
-    if ($r['name'] === 'dentist') $dentistRoleId = $r['id'];
-}
-
-$dstmt = mysqli_prepare($conn,
-    "SELECT id 
-       FROM roles 
-      WHERE name = 'dentist'"
-);
-mysqli_stmt_execute($dstmt);
-mysqli_stmt_bind_result($dstmt, $dentistRoleId);
-mysqli_stmt_fetch($dstmt);
-mysqli_stmt_close($dstmt);
+$clientRoleId = 3;
+$dentistRoleId = 2;
 
 // Fetch dentists list
 $dentists = [];
@@ -174,6 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Send email with credentials if new user
             if (!$id && !empty($password)) {
                 send_mail($email, $password);
+            }
+            else{
+                editAccount($email, $password);
             }
 
             // Delete request if this was created from a request
@@ -298,7 +282,8 @@ mysqli_stmt_close($stmt);
                         <?php if ($generated_password): ?>
                             <div class="generated-password">
                                 <strong>Generated Password:</strong>
-                                <small>(A password has been generated and emailed to the user.)</small>
+                                <code><?= htmlspecialchars($generated_password) ?></code>
+                                <small>(This password has been emailed to the user)</small>
                             </div>
                         <?php endif; ?>
                         <div class="alert-actions">

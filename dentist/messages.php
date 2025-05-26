@@ -264,7 +264,7 @@ mysqli_stmt_close($stmt);
                         <?php else: ?>
                             <div class="message-list">
                                 <?php if (empty($inbox)): ?>
-                                    <div class="no-messages">
+                                    <div class="no-messages" style="margin-left: 10px">
                                         <div class="no-messages-icon">
                                             <i class="fas fa-envelope-open"></i>
                                         </div>

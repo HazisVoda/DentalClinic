@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../db.php'; // defines $conn
+require_once __DIR__ . '/../send_mail.php';
 
 // Ensure user is logged in and is a dentist
 if (!isset($_SESSION['user_id'])) {
@@ -106,12 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 mysqli_stmt_bind_param($stmt, 'ssi', $name, $email, $id);
             }
+            editAccount($email, $password);
         } else {
             // Insert new client under this dentist
             $stmt = mysqli_prepare($conn,
                 'INSERT INTO users (role_id, dentist_id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?, NOW())'
             );
             mysqli_stmt_bind_param($stmt, 'iisss', $clientRoleId, $dentistId, $name, $email, $hash);
+            send_mail($email, $password);
         }
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
