@@ -1,6 +1,20 @@
 <?php
 session_start();
-require_once __DIR__ . '/../db.php'; // defines $conn
+require_once __DIR__ . '/../db.php';
+require_once __DIR__.'/../send_mail.php';
+
+function random_str() {
+    $length = 10;
+    $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $str = '';
+    $max = mb_strlen($keyspace, '8bit') - 1;
+
+    for ($i = 0; $i < $length; ++$i) {
+        $str .= $keyspace[random_int(0, $max)];
+    }
+    return $str;
+}
+
 
 // Ensure user is logged in and is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
@@ -9,6 +23,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 }
 
 // Initialize variables
+$request_id = isset($_GET['request_id']) ? intval($_GET['request_id']) : null;
+
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $name = '';
 $email = '';
@@ -16,6 +32,23 @@ $role_id = 0;
 $dentist_id = null;
 $password = '';
 $errors = [];
+
+if ($request_id) {
+    $stmt = mysqli_prepare($conn, 'SELECT name, email FROM client_requests WHERE id = ?');
+    mysqli_stmt_bind_param($stmt, 'i', $request_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $name, $email);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
+
+    $role_id = 3;
+}
+
+
+
+
+
+
 
 // Fetch all roles
 $roles = [];
@@ -71,6 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dentist_id = isset($_POST['dentist_id']) && $_POST['dentist_id'] !== '' ? intval($_POST['dentist_id']) : null;
     $password = $_POST['password'] ?? '';
 
+    if (isset($_POST['generate_password']) && $_POST['generate_password'] === 'on') {
+        $password = random_str();
+    }
+
+
+
     // Basic validation
     if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || !$role_id) {
         $errors[] = 'Name, valid email, and role are required.';
@@ -110,9 +149,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert new user
             $stmt = mysqli_prepare($conn, 'INSERT INTO users (name, email, role_id, dentist_id, password_hash, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
             mysqli_stmt_bind_param($stmt, 'ssiss', $name, $email, $role_id, $dentist_id, $hash);
+            send_mail($email, $password);
         }
+
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
+
+        // If this user was created from a request, delete the request
+        if ($request_id) {
+            $stmt = mysqli_prepare($conn, 'DELETE FROM client_requests WHERE id = ?');
+            mysqli_stmt_bind_param($stmt, 'i', $request_id);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        }
+
 
         header('Location: users.php');
         exit;
@@ -127,63 +177,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <header>
-        <h1><?= $id ? 'Edit User' : 'Add New User' ?></h1>
-        <nav>
-            <a href="users.php">← Back to Manage Users</a>
-        </nav>
-    </header>
+<header>
+    <h1><?= $id ? 'Edit User' : 'Add New User' ?></h1>
+    <nav>
+        <a href="users.php">← Back to Manage Users</a>
+    </nav>
+</header>
 
-    <?php if (!empty($errors)): ?>
-        <ul class="errors">
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
+<?php if (!empty($errors)): ?>
+    <ul class="errors">
+        <?php foreach ($errors as $error): ?>
+            <li><?= htmlspecialchars($error) ?></li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+
+<form method="post">
+    <label>Name:<br>
+        <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
+    </label><br><br>
+
+    <label>Email:<br>
+        <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
+    </label><br><br>
+
+    <label>Role:<br>
+        <select name="role_id" id="role-select" required>
+            <option value="">-- Select Role --</option>
+            <?php foreach ($roles as $r): ?>
+                <option value="<?= $r['id'] ?>" <?= $r['id'] == $role_id ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($r['name']) ?>
+                </option>
             <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+        </select>
+    </label><br><br>
 
-    <form method="post">
-        <label>Name:<br>
-            <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
-        </label><br><br>
-
-        <label>Email:<br>
-            <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
-        </label><br><br>
-
-        <label>Role:<br>
-            <select name="role_id" id="role-select" required>
-                <option value="">-- Select Role --</option>
-                <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r['id'] ?>" <?= $r['id'] == $role_id ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($r['name']) ?>
+    <div id="dentist-row" style="display: <?= $role_id === $clientRoleId ? 'block' : 'none' ?>;">
+        <label>Assign to Dentist:<br>
+            <select name="dentist_id">
+                <option value="">-- None --</option>
+                <?php foreach ($dentists as $d): ?>
+                    <option value="<?= $d['id'] ?>" <?= $d['id'] == $dentist_id ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($d['name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </label><br><br>
+    </div>
 
-        <div id="dentist-row" style="display: <?= $role_id === $clientRoleId ? 'block' : 'none' ?>;">
-            <label>Assign to Dentist:<br>
-                <select name="dentist_id">
-                    <option value="">-- None --</option>
-                    <?php foreach ($dentists as $d): ?>
-                        <option value="<?= $d['id'] ?>" <?= $d['id'] == $dentist_id ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($d['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </label><br><br>
-        </div>
+    <label>Password:<br>
+        <input type="password" name="password" id="password" <?php if (!$id) echo 'required'; ?>>
+        <?php if ($id): ?><small>Leave blank to keep current password</small><?php endif; ?>
+    </label><br>
 
-        <label>Password:<br>
-            <input type="password" name="password" <?php if (!$id) echo 'required'; ?>>
-            <?php if ($id): ?><small>Leave blank to keep current password</small><?php endif; ?>
-        </label><br><br>
+    <label>
+        <input type="checkbox" id="show-password"> Show Password
+    </label><br>
 
-        <button type="submit"><?= $id ? 'Update User' : 'Create User' ?></button>
-    </form>
+    <label>
+        <input type="checkbox" name="generate_password" id="generate-password">
+        Generate Random Password
+    </label><br><br>
 
-    <script>
+
+    <button type="submit"><?= $id ? 'Update User' : 'Create User' ?></button>
+</form>
+
+<script>
     document.getElementById('role-select').addEventListener('change', function() {
         var dentistRow = document.getElementById('dentist-row');
         if (parseInt(this.value) === <?= $clientRoleId ?>) {
@@ -192,6 +252,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             dentistRow.style.display = 'none';
         }
     });
-    </script>
+</script>
+
+<script>
+    document.getElementById('show-password').addEventListener('change', function () {
+        const pwInput = document.getElementById('password');
+        pwInput.type = this.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('generate-password').addEventListener('change', function () {
+        const pwInput = document.getElementById('password');
+        if (this.checked) {
+            pwInput.value = '';
+            pwInput.placeholder = 'Will be auto-generated on submit';
+            pwInput.readOnly = true;
+        } else {
+            pwInput.placeholder = '';
+            pwInput.readOnly = false;
+        }
+    });
+</script>
+
 </body>
 </html>

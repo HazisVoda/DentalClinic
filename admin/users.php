@@ -12,6 +12,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
 
+    if ($deleteId === $_SESSION['user_id']) {
+        header('Location: users.php?error=self-delete');
+        exit;
+    }
+
     // Start transaction to ensure data integrity
     mysqli_begin_transaction($conn);
     try {
@@ -70,42 +75,46 @@ $result = mysqli_query($conn, $sql);
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <header>
-        <h1>Manage Users</h1>
-        <nav>
-            <a href="admin_dashboard.php">← Back to Dashboard</a>
-        </nav>
-    </header>
+<header>
+    <h1>Manage Users</h1>
+    <nav>
+        <a href="admin_dashboard.php">← Back to Dashboard</a>
+    </nav>
+</header>
 
-    <section>
-        <a href="user_form.php" class="button">Add New User</a>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Dentist</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['name']) ?></td>
-                    <td><?= htmlspecialchars($row['email']) ?></td>
-                    <td><?= htmlspecialchars($row['role']) ?></td>
-                    <td><?= htmlspecialchars($row['dentist_name']) ?></td>
-                    <td>
-                        <a href="user_form.php?id=<?= $row['id'] ?>">Edit</a> |
-                        <a href="users.php?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this user and all related data?');">Delete</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </section>
+<?php if (isset($_GET['error']) && $_GET['error'] === 'self-delete'): ?>
+    <p class="error" style="color: red;">You cannot delete your own account.</p>
+<?php endif; ?>
+
+<section>
+    <a href="user_form.php" class="button">Add New User</a>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Dentist</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php while ($row = mysqli_fetch_assoc($result)): ?>
+            <tr>
+                <td><?= htmlspecialchars($row['id']) ?></td>
+                <td><?= htmlspecialchars($row['name']) ?></td>
+                <td><?= htmlspecialchars($row['email']) ?></td>
+                <td><?= htmlspecialchars($row['role']) ?></td>
+                <td><?= htmlspecialchars($row['dentist_name']) ?></td>
+                <td>
+                    <a href="user_form.php?id=<?= $row['id'] ?>">Edit</a> |
+                    <a href="users.php?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this user and all related data?');">Delete</a>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+        </tbody>
+    </table>
+</section>
 </body>
 </html>

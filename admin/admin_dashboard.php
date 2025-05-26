@@ -41,6 +41,7 @@ foreach ($queries as $key => $sql) {
             <a href="appointments.php">Manage Appointments</a> |
             <a href="feedback.php">View Feedback</a> |
             <a href="messages.php">View Messages</a> |
+            <a href="view_requests.php">View Requests</a> |
             <a href = "../logout.php?token=<?php echo $_SESSION['token']; ?>">Logout</a>
         </nav>
     </header>
