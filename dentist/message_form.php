@@ -17,6 +17,14 @@ mysqli_stmt_bind_result($stmt, $dentistName);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 
+// Handle reply functionality
+$reply_subject = '';
+$reply_recipient = '';
+if (isset($_GET['reply_to']) && isset($_GET['subject'])) {
+    $reply_recipient = $_GET['reply_to'];
+    $reply_subject = $_GET['subject'];
+}
+
 // Handle sending a new message
 $errors = [];
 $success = false;
@@ -187,10 +195,7 @@ if (isset($_GET['template'])) {
                     <div class="page-header">
                         <div class="page-title">
                             <h2>
-                                <a href="messages.php" class="back-link" style="text-decoration: none;">
-                                    <i class="fas fa-arrow-left"></i>
-                                </a>
-                                Compose Message
+                                <?= $reply_subject ? 'Reply to Message' : 'Compose Message' ?>
                             </h2>
                         </div>
                     </div>
@@ -210,58 +215,55 @@ if (isset($_GET['template'])) {
                             </div>
                         <?php endif; ?>
 
-                        <div class="dashboard-grid">
-                            <!-- Compose Form -->
-                            <div class="form-card">
-                                <h3>Send New Message</h3>
-                                <form method="post" action="">
-                                    <div class="form-group">
-                                        <label for="receiver_id">
-                                            <i class="fas fa-user"></i> To
-                                        </label>
-                                        <select name="receiver_id" id="receiver_id" required>
-                                            <option value="">-- Select Recipient --</option>
-                                            <?php foreach ($recipients as $rid => $label): ?>
-                                                <option value="<?= $rid ?>" <?= (isset($_POST['receiver_id']) && $_POST['receiver_id'] == $rid) ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($label) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
+                        <div class="form-card">
+                            <form method="post" action="">
+                                <div class="form-group">
+                                    <label for="receiver_id">
+                                        <i class="fas fa-user"></i> To
+                                    </label>
+                                    <select name="receiver_id" id="receiver_id" required>
+                                        <option value="">Select recipient</option>
+                                        <?php foreach ($recipients as $rid => $rname): ?>
+                                            <option value="<?= $rid ?>"
+                                                <?php 
+                                                if (isset($_POST['receiver_id']) && $_POST['receiver_id'] == $rid) {
+                                                    echo 'selected';
+                                                } elseif ($reply_recipient && strpos($rname, $reply_recipient) !== false) {
+                                                    echo 'selected';
+                                                }
+                                                ?>>
+                                                <?= htmlspecialchars($rname) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="subject">
-                                            <i class="fas fa-tag"></i> Subject
-                                        </label>
-                                        <input type="text" 
-                                               name="subject" 
-                                               id="subject" 
-                                               value="<?= htmlspecialchars($template_subject ?: ($_POST['subject'] ?? '')) ?>" 
-                                               required
-                                               placeholder="Enter message subject">
-                                    </div>
+                                <div class="form-group">
+                                    <label for="subject">
+                                        <i class="fas fa-tag"></i> Subject
+                                    </label>
+                                    <input type="text" name="subject" id="subject" 
+                                           value="<?= htmlspecialchars($reply_subject ?: ($_POST['subject'] ?? '')) ?>"
+                                           placeholder="Enter subject" required>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="body">
-                                            <i class="fas fa-comment"></i> Message
-                                        </label>
-                                        <textarea name="body" 
-                                                  id="body" 
-                                                  rows="8" 
-                                                  required
-                                                  placeholder="Type your message here..."><?= htmlspecialchars($template_body ?: ($_POST['body'] ?? '')) ?></textarea>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="body">
+                                        <i class="fas fa-edit"></i> Message
+                                    </label>
+                                    <textarea name="body" id="body" rows="8" 
+                                              placeholder="Type your message..." required><?= isset($_POST['body']) ? htmlspecialchars($_POST['body']) : '' ?></textarea>
+                                </div>
 
-                                    <div class="form-actions">
-                                        <a href="messages.php" class="btn btn-secondary">
-                                            <i class="fas fa-times"></i> Cancel
-                                        </a>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-paper-plane"></i> Send Message
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                                <div class="form-actions">
+                                    <a href="messages.php" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Send Message
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

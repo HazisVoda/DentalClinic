@@ -237,32 +237,6 @@ mysqli_stmt_close($stmt);
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
-
-                    <?php if (!empty($previous_feedback)): ?>
-                        <div class="previous-feedback">
-                            <h3>Your Previous Feedback</h3>
-                            <div class="feedback-list">
-                                <?php foreach ($previous_feedback as $feedback): ?>
-                                    <div class="feedback-item">
-                                        <div class="feedback-header">
-                                            <h4><?= htmlspecialchars($feedback['dentist_name']) ?></h4>
-                                            <div class="feedback-rating">
-                                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <i class="<?= $i <= $feedback['rating'] ? 'fas' : 'far' ?> fa-star"></i>
-                                                <?php endfor; ?>
-                                            </div>
-                                            <span class="feedback-date"><?= date('M j, Y', strtotime($feedback['created_at'])) ?></span>
-                                        </div>
-                                        <?php if ($feedback['comments']): ?>
-                                            <div class="feedback-content">
-                                                <p><?= nl2br(htmlspecialchars($feedback['comments'])) ?></p>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </main>
         </div>

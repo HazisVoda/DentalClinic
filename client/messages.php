@@ -6,9 +6,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 3) {
     exit();
 }
 
-// Check for success message from compose form
-$show_success = isset($_GET['sent']) && $_GET['sent'] == '1';
-
 include '../db.php';
 $client_id = $_SESSION['user_id'];
 
@@ -51,6 +48,10 @@ if (isset($_GET['view'])) {
     mysqli_stmt_close($q);
 }
 
+
+// Check for success message from compose form
+$show_success = isset($_GET['sent']) && $_GET['sent'] == '1';
+
 // 4) Fetch inbox (latest 20)
 $inbox = [];
 $stmt = mysqli_prepare($conn, "
@@ -66,39 +67,6 @@ mysqli_stmt_execute($stmt);
 $res = mysqli_stmt_get_result($stmt);
 while ($row = mysqli_fetch_assoc($res)) {
     $inbox[] = $row;
-}
-mysqli_stmt_close($stmt);
-
-// 5) Fetch recipients (dentist + admins)
-$recipients = [];
-// dentist
-$stmt = mysqli_prepare($conn, "SELECT dentist_id FROM users WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $client_id);
-mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $dentist_id);
-mysqli_stmt_fetch($stmt);
-mysqli_stmt_close($stmt);
-if ($dentist_id) {
-    $q = mysqli_prepare($conn, "SELECT id, name FROM users WHERE id = ?");
-    mysqli_stmt_bind_param($q, 'i', $dentist_id);
-    mysqli_stmt_execute($q);
-    mysqli_stmt_bind_result($q, $rid, $rname);
-    if (mysqli_stmt_fetch($q)) {
-        $recipients[$rid] = $rname . " (Your Dentist)";
-    }
-    mysqli_stmt_close($q);
-}
-
-// all admins
-$stmt = mysqli_prepare($conn, "
-    SELECT id, name
-    FROM users
-    WHERE role_id = (SELECT id FROM roles WHERE name = 'admin')
-");
-mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $rid, $rname);
-while (mysqli_stmt_fetch($stmt)) {
-    $recipients[$rid] = $rname . " (Admin)";
 }
 mysqli_stmt_close($stmt);
 
@@ -126,7 +94,7 @@ foreach ($inbox as $msg) {
             </div>
             <div class="nav-user">
                 <span>Welcome, <?= htmlspecialchars($client_name) ?>!</span>
-                <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
+                <a href="../logout.php" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
@@ -185,14 +153,10 @@ foreach ($inbox as $msg) {
                                 <i class="fas fa-plus"></i> New Message
                             </a>
                         </div>
+                        <br>
                         
                         <?php if ($viewMessage): ?>
                             <div class="message-view">
-                                <div class="message-view-header">
-                                    <button onclick="closeMessageView()" class="btn btn-secondary">
-                                        <i class="fas fa-arrow-left"></i> Back to Inbox
-                                    </button>
-                                </div>
                                 <div class="message-view-content">
                                     <h3><?= htmlspecialchars($viewMessage['subject']) ?></h3>
                                     <div class="message-meta">
@@ -201,6 +165,14 @@ foreach ($inbox as $msg) {
                                     </div>
                                     <div class="message-body">
                                         <?= nl2br(htmlspecialchars($viewMessage['body'])) ?>
+                                    </div>
+                                    <div class="message-actions">
+                                        <a href="message_form.php?reply_to=<?= urlencode($viewMessage['sender_name']) ?>&subject=<?= urlencode('Re: ' . $viewMessage['subject']) ?>" class="btn btn-primary">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </a>
+                                        <a href="messages.php" class="btn btn-secondary">
+                                            <i class="fas fa-list"></i> Back to Inbox
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -219,22 +191,23 @@ foreach ($inbox as $msg) {
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($inbox as $msg): ?>
-                                        <div class="message-item <?= !$msg['is_read'] ? 'unread' : '' ?>" 
-                                             onclick="viewMessage(<?= $msg['id'] ?>)">
-                                            <div class="message-header">
-                                                <h4><?= htmlspecialchars($msg['subject']) ?></h4>
-                                                <span class="message-date"><?= date('M j, Y', strtotime($msg['sent_at'])) ?></span>
-                                            </div>
-                                            <p class="message-preview">
-                                                Click to read this message...
-                                            </p>
-                                            <span class="message-from">From: <?= htmlspecialchars($msg['sender_name']) ?></span>
-                                            <?php if (!$msg['is_read']): ?>
-                                                <div class="unread-indicator">
-                                                    <i class="fas fa-circle"></i>
+                                        <a href="?view=<?= $msg['id'] ?>" class="message-item-link" style="text-decoration: none;">
+                                            <div class="message-item <?= !$msg['is_read'] ? 'unread' : '' ?>">
+                                                <div class="message-header">
+                                                    <h4><?= htmlspecialchars($msg['subject']) ?></h4> &nbsp; &nbsp;
+                                                    <span class="message-date"><?= date('M j, Y', strtotime($msg['sent_at'])) ?></span>
                                                 </div>
-                                            <?php endif; ?>
-                                        </div>
+                                                <p class="message-preview">
+                                                    Click to read this message...
+                                                </p>
+                                                <span class="message-from">From: <?= htmlspecialchars($msg['sender_name']) ?></span>
+                                                <?php if (!$msg['is_read']): ?>
+                                                    <div class="unread-indicator">
+                                                        <i class="fas fa-circle"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </a>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -244,16 +217,5 @@ foreach ($inbox as $msg) {
             </main>
         </div>
     </div>
-
-    <script src="../script.js"></script>
-    <script>
-        function viewMessage(messageId) {
-            window.location.href = '?view=' + messageId;
-        }
-
-        function closeMessageView() {
-            window.location.href = 'messages.php';
-        }
-    </script>
 </body>
 </html>

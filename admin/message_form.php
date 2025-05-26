@@ -1,19 +1,19 @@
 <?php
 session_start();
-// Only clients can access
-if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 3) {
+// 1) Only admins (role_id = 1) can access
+if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
     header('Location: ../login.php');
     exit();
 }
 
 include '../db.php';
-$client_id = $_SESSION['user_id'];
+$admin_id = $_SESSION['user_id'];
 
-// Get client name
+// Get admin name
 $stmt = mysqli_prepare($conn, "SELECT name FROM users WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $client_id);
+mysqli_stmt_bind_param($stmt, 'i', $admin_id);
 mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $client_name);
+mysqli_stmt_bind_result($stmt, $admin_name);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 
@@ -25,7 +25,7 @@ if (isset($_GET['reply_to']) && isset($_GET['subject'])) {
     $reply_subject = $_GET['subject'];
 }
 
-// Handle sending a new message
+// 3) Send new message
 $errors = [];
 $success = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -33,84 +33,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject     = trim($_POST['subject'] ?? '');
     $body        = trim($_POST['body']    ?? '');
 
-    // validation
-    if (!$receiver_id) {
-        $errors[] = "Please select a recipient.";
-    }
-    if ($subject === '') {
-        $errors[] = "Subject cannot be empty.";
-    }
-    if ($body === '') {
-        $errors[] = "Message body cannot be empty.";
-    }
+    if (!$receiver_id)   $errors[] = "Select a recipient.";
+    if ($subject === '') $errors[] = "Subject cannot be empty.";
+    if ($body === '')    $errors[] = "Message cannot be empty.";
 
-    // insert
     if (empty($errors)) {
-        $ins = mysqli_prepare($conn, "
-            INSERT INTO messages (sender_id, receiver_id, subject, body)
-            VALUES (?, ?, ?, ?)
-        ");
+        $ins = mysqli_prepare($conn,
+            "INSERT INTO messages (sender_id, receiver_id, subject, body)
+             VALUES (?, ?, ?, ?)"
+        );
         mysqli_stmt_bind_param($ins, 'iiss',
-            $client_id,
-            $receiver_id,
-            $subject,
-            $body
+            $admin_id, $receiver_id, $subject, $body
         );
         if (mysqli_stmt_execute($ins)) {
-            $success = true;
-            // Redirect back to messages with success message
+            mysqli_stmt_close($ins);
             header('Location: messages.php?sent=1');
-            exit();
+            exit;
         } else {
-            $errors[] = "DB error: " . mysqli_error($conn);
+            $errors[] = "DB error: ".mysqli_error($conn);
+            mysqli_stmt_close($ins);
         }
-        mysqli_stmt_close($ins);
     }
 }
 
-// Fetch recipients (dentist + admins)
+// 5) Build recipients: all dentists and clients
 $recipients = [];
-// dentist
-$stmt = mysqli_prepare($conn, "SELECT dentist_id FROM users WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $client_id);
+$rstmt = mysqli_prepare($conn,
+    "SELECT id, name, role_id 
+       FROM users 
+      WHERE id <> ? 
+        AND role_id IN (
+           SELECT id FROM roles WHERE name IN ('dentist','client')
+        )
+      ORDER BY role_id, name"
+);
+mysqli_stmt_bind_param($rstmt, 'i', $admin_id);
+mysqli_stmt_execute($rstmt);
+mysqli_stmt_bind_result($rstmt, $rid, $rname, $rrole);
+while (mysqli_stmt_fetch($rstmt)) {
+    $label = $rname . ($rrole==2 ? ' (Dentist)' : ' (Client)');
+    $recipients[$rid] = $label;
+}
+mysqli_stmt_close($rstmt);
+
+// Get unread message count
+$stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND is_read = 0");
+mysqli_stmt_bind_param($stmt, 'i', $admin_id);
 mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $dentist_id);
+mysqli_stmt_bind_result($stmt, $unread_count);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
-if ($dentist_id) {
-    $q = mysqli_prepare($conn, "SELECT id, name FROM users WHERE id = ?");
-    mysqli_stmt_bind_param($q, 'i', $dentist_id);
-    mysqli_stmt_execute($q);
-    mysqli_stmt_bind_result($q, $rid, $rname);
-    if (mysqli_stmt_fetch($q)) {
-        $recipients[$rid] = $rname . " (Your Dentist)";
+
+// Handle template selection
+$template_subject = '';
+$template_body = '';
+if (isset($_GET['template'])) {
+    switch ($_GET['template']) {
+        case 'system_update':
+            $template_subject = 'System Update Notification';
+            $template_body = "Dear User,\n\nWe wanted to inform you about an upcoming system update that will improve your experience with our dental clinic management system.\n\nThe update is scheduled for [DATE] and may cause brief service interruptions.\n\nThank you for your understanding.\n\nBest regards,\n" . $admin_name . "\nSystem Administrator";
+            break;
+        case 'policy_update':
+            $template_subject = 'Policy Update Notice';
+            $template_body = "Dear User,\n\nWe have updated our clinic policies to better serve you. Please review the changes at your earliest convenience.\n\nKey updates include:\n- [Policy change 1]\n- [Policy change 2]\n- [Policy change 3]\n\nIf you have any questions, please don't hesitate to contact us.\n\nBest regards,\n" . $admin_name . "\nAdministration";
+            break;
+        case 'welcome':
+            $template_subject = 'Welcome to Our Dental Clinic';
+            $template_body = "Dear New User,\n\nWelcome to our dental clinic management system! We're excited to have you as part of our community.\n\nYour account has been successfully created and you can now:\n- Schedule appointments\n- View your treatment history\n- Communicate with your dental team\n- Provide feedback\n\nIf you need any assistance getting started, please don't hesitate to reach out.\n\nBest regards,\n" . $admin_name . "\nAdministration";
+            break;
     }
-    mysqli_stmt_close($q);
 }
-
-// all admins
-$stmt = mysqli_prepare($conn, "
-    SELECT id, name
-    FROM users
-    WHERE role_id = (SELECT id FROM roles WHERE name = 'admin')
-");
-mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $rid, $rname);
-while (mysqli_stmt_fetch($stmt)) {
-    $recipients[$rid] = $rname . " (Admin)";
-}
-mysqli_stmt_close($stmt);
-
-// Get unread count for navigation
-$unread_stmt = mysqli_prepare($conn, "
-    SELECT COUNT(*) FROM messages 
-    WHERE receiver_id = ? AND is_read = 0
-");
-mysqli_stmt_bind_param($unread_stmt, 'i', $client_id);
-mysqli_stmt_execute($unread_stmt);
-mysqli_stmt_bind_result($unread_stmt, $unread_count);
-mysqli_stmt_fetch($unread_stmt);
-mysqli_stmt_close($unread_stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -122,14 +114,14 @@ mysqli_stmt_close($unread_stmt);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="clientDashboard" class="page active">
+    <div id="adminDashboard" class="page active">
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-tooth"></i>
-                <span>Dental Clinic</span>
+                <span>Dental Clinic - Admin</span>
             </div>
             <div class="nav-user">
-                <span>Welcome, <?= htmlspecialchars($client_name) ?>!</span>
+                <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
                 <a href="../logout.php" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
@@ -140,9 +132,21 @@ mysqli_stmt_close($unread_stmt);
             <aside class="sidebar">
                 <ul class="sidebar-menu">
                     <li>
-                        <a href="client_dashboard.php">
+                        <a href="admin_dashboard.php">
                             <i class="fas fa-home"></i>
-                            <span>Overview</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="users.php">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="view_requests.php">
+                            <i class="fas fa-user-clock"></i>
+                            <span>Account Requests</span>
                         </a>
                     </li>
                     <li>
@@ -249,5 +253,7 @@ mysqli_stmt_close($unread_stmt);
             </main>
         </div>
     </div>
+
+    <script src="../script.js"></script>
 </body>
 </html>

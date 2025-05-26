@@ -173,10 +173,8 @@ mysqli_stmt_close($stmt);
                             <?php if (count($upcoming) === 0): ?>
                                 <div class="no-appointments">
                                     <p>No upcoming appointments.</p>
-                                    <a href="appointments.php" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i> Book Appointment
-                                    </a>
                                 </div>
+                                <br>
                             <?php else: ?>
                                 <?php foreach ($upcoming as $a): ?>
                                 <div class="appointment-item">
@@ -198,6 +196,7 @@ mysqli_stmt_close($stmt);
                                 <div class="appointment-actions">
                                     <a href="appointments.php" class="btn btn-secondary">View All Appointments</a>
                                 </div>
+                                <br>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -205,6 +204,7 @@ mysqli_stmt_close($stmt);
                     <?php if (count($past) > 0): ?>
                     <div class="recent-appointments">
                         <h3>Recent Past Appointments</h3>
+                        <br>
                         <div class="appointment-list">
                             <?php foreach (array_slice($past, 0, 3) as $a): ?>
                             <div class="appointment-item">
@@ -222,6 +222,7 @@ mysqli_stmt_close($stmt);
                                     </span>
                                 </div>
                             </div>
+                            <br>
                             <?php endforeach; ?>
                             <div class="appointment-actions">
                                 <a href="feedback.php" class="btn btn-primary">Give Feedback</a>
