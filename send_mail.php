@@ -7,10 +7,12 @@ require 'PHPMailer-master/src/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-function send_mail($to, $password): void
+
+function send_mail($to, $password) : void
 {
     try{
         $mail = new PHPMailer();
+        $mail->Debugoutput = "error_log";
 
 //Server settings
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
@@ -28,16 +30,12 @@ function send_mail($to, $password): void
 
 
 //Content
-        $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = 'Your account has been created';
-        $mail->Body    =
-"Hello!\n\nYour account has been created.\n\n
-username : ".$to."\n
-password : ".$password;
+        $mail->Body    ="Hello!" . PHP_EOL . PHP_EOL . " Your account has been created." . PHP_EOL . PHP_EOL . "username : ".$to. PHP_EOL . "password : ".$password;
 
 
         $mail->send();
-    } catch (Exception $e) {
 
+    } catch (Exception $e) {
     }
 }

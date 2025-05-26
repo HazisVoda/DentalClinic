@@ -25,6 +25,11 @@ $role_filter = isset($_GET['role']) ? trim($_GET['role']) : '';
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
 
+    if ($deleteId == $_SESSION['user_id']) {
+        header('Location: users.php?error=self-delete');
+        exit;
+    }
+
     // Start transaction to ensure data integrity
     mysqli_begin_transaction($conn);
     try {
@@ -234,11 +239,22 @@ mysqli_stmt_close($stmt);
                     </div>
 
                     <?php if (isset($_GET['deleted'])): ?>
+                    <br>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i>
                             <div class="alert-content">
                                 <h4>User Deleted Successfully!</h4>
                                 <p>The user and all related data have been removed from the system.</p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($_GET['error']) && $_GET['error'] === 'self-delete'): ?>
+                    <br>
+                        <div class="alert alert-error">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="alert-content">
+                                <h4>You cannot delete your own account!</h4>
                             </div>
                         </div>
                     <?php endif; ?>

@@ -1,3 +1,2 @@
 <?php
-header('location: dentist_dashboard.php');
-?>
+require_once __DIR__ . '/../check_auth.php';

@@ -42,7 +42,10 @@ $errors = [];
 $success = false;
 $generated_password = '';
 
-// If creating from request, load request data
+// Fetch all roles
+$roles = [];
+$roleRes = mysqli_query($conn, 'SELECT id, name FROM roles ORDER BY name');
+
 if ($request_id) {
     $stmt = mysqli_prepare($conn, 'SELECT name, email FROM client_requests WHERE id = ?');
     mysqli_stmt_bind_param($stmt, 'i', $request_id);
@@ -50,20 +53,22 @@ if ($request_id) {
     mysqli_stmt_bind_result($stmt, $name, $email);
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_close($stmt);
-    
-    // Default to client role for requests
-    $stmt = mysqli_prepare($conn, "SELECT id FROM roles WHERE name = 'client'");
+
+    $stmt = mysqli_prepare($conn, "SELECT id FROM roles WHERE name = 'dentist'");
     mysqli_stmt_execute($stmt);
     mysqli_stmt_bind_result($stmt, $role_id);
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_close($stmt);
-}
 
-// Fetch all roles
-$roles = [];
-$roleRes = mysqli_query($conn, 'SELECT id, name FROM roles ORDER BY name');
-while ($r = mysqli_fetch_assoc($roleRes)) {
-    $roles[] = $r;
+    while ($r = mysqli_fetch_assoc($roleRes)) {
+        if ($r['id'] == 3)
+            $roles[] = $r;
+    }
+}
+else {
+    while ($r = mysqli_fetch_assoc($roleRes)) {
+        $roles[] = $r;
+    }
 }
 
 // Get role IDs
@@ -155,12 +160,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (mysqli_stmt_execute($stmt)) {
             $success = true;
-            
+
             // Send email with credentials if new user
             if (!$id && !empty($password)) {
                 send_mail($email, $password);
             }
-            
+
             // Delete request if this was created from a request
             if ($request_id) {
                 $del_stmt = mysqli_prepare($conn, 'DELETE FROM client_requests WHERE id = ?');
@@ -193,276 +198,279 @@ mysqli_stmt_close($stmt);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="adminDashboard" class="page active">
-        <nav class="navbar">
-            <div class="nav-brand">
-                <i class="fas fa-tooth"></i>
-                <span>Epoka Clinic - Admin</span>
-            </div>
-            <div class="nav-user">
-                <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
-                <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
-            </div>
-        </nav>
+<div id="adminDashboard" class="page active">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-tooth"></i>
+            <span>Epoka Clinic - Admin</span>
+        </div>
+        <div class="nav-user">
+            <span>Welcome, <?= htmlspecialchars($admin_name) ?>!</span>
+            <a href="../logout.php?token=<?php echo $_SESSION['token']; ?>" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </nav>
 
-        <div class="dashboard-container">
-            <aside class="sidebar">
-                <ul class="sidebar-menu">
-                    <li>
-                        <a href="admin_dashboard.php">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="active">
-                        <a href="users.php">
-                            <i class="fas fa-users"></i>
-                            <span>Manage Users</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="view_requests.php">
-                            <i class="fas fa-user-clock"></i>
-                            <span>Account Requests</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="appointments.php">
-                            <i class="fas fa-calendar"></i>
-                            <span>Appointments</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="feedback.php">
-                            <i class="fas fa-star"></i>
-                            <span>Feedback</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="messages.php">
-                            <i class="fas fa-envelope"></i>
-                            <span>Messages</span>
-                            <?php if ($unread_count > 0): ?>
-                                <span class="badge"><?= $unread_count ?></span>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="admin_dashboard.php">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="users.php">
+                        <i class="fas fa-users"></i>
+                        <span>Manage Users</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="view_requests.php">
+                        <i class="fas fa-user-clock"></i>
+                        <span>Account Requests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="appointments.php">
+                        <i class="fas fa-calendar"></i>
+                        <span>Appointments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="feedback.php">
+                        <i class="fas fa-star"></i>
+                        <span>Feedback</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="messages.php">
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                        <?php if ($unread_count > 0): ?>
+                            <span class="badge"><?= $unread_count ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-section active">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2>
+                            <i class="fas fa-<?= $id ? 'edit' : 'user-plus' ?>"></i>
+                            <?php if ($request_id): ?>
+                                Activate Account Request
+                            <?php elseif ($id): ?>
+                                Edit User Account
+                            <?php else: ?>
+                                Create New User
                             <?php endif; ?>
-                        </a>
-                    </li>
-                </ul>
-            </aside>
-
-            <main class="main-content">
-                <div class="content-section active">
-                    <div class="page-header">
-                        <div class="page-title">
-                            <h2>
-                                <i class="fas fa-<?= $id ? 'edit' : 'user-plus' ?>"></i>
-                                <?php if ($request_id): ?>
-                                    Activate Account Request
-                                <?php elseif ($id): ?>
-                                    Edit User Account
-                                <?php else: ?>
-                                    Create New User
-                                <?php endif; ?>
-                            </h2>
-                        </div>
-                        <div class="page-actions">
-                            <a href="<?= $request_id ? 'view_requests.php' : 'users.php' ?>" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> 
-                                <?= $request_id ? 'Back to Requests' : 'Back to Users' ?>
-                            </a>
-                        </div>
+                        </h2>
                     </div>
-                    <br>
-
-                    <?php if ($success): ?>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            <strong>Success!</strong> User account <?= $id ? 'updated' : 'created' ?> successfully.
-                            <?php if ($generated_password): ?>
-                                <div class="generated-password">
-                                    <strong>Generated Password:</strong> 
-                                    <code><?= htmlspecialchars($generated_password) ?></code>
-                                    <small>(This password has been emailed to the user)</small>
-                                </div>
-                            <?php endif; ?>
-                            <div class="alert-actions">
-                                <a href="users.php" class="btn btn-primary btn-sm">View All Users</a>
-                                <?php if (!$id): ?>
-                                    <a href="user_form.php" class="btn btn-secondary btn-sm">Create Another User</a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if (!empty($errors)): ?>
-                        <div class="alert alert-error">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Please fix the following errors:</strong>
-                            <ul>
-                                <?php foreach ($errors as $error): ?>
-                                    <li><?= htmlspecialchars($error) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($request_id): ?>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Account Request:</strong> You are creating an account from a client request. 
-                            The name and email have been pre-filled from the request.
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="form-container">
-                        <form method="post" class="user-form">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="name">
-                                        <i class="fas fa-user"></i> Full Name *
-                                    </label>
-                                    <input type="text" name="name" id="name" 
-                                           value="<?= htmlspecialchars($name) ?>" 
-                                           placeholder="Enter full name" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="email">
-                                        <i class="fas fa-envelope"></i> Email Address *
-                                    </label>
-                                    <input type="email" name="email" id="email" 
-                                           value="<?= htmlspecialchars($email) ?>" 
-                                           placeholder="Enter email address" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="role_id">
-                                        <i class="fas fa-user-tag"></i> User Role *
-                                    </label>
-                                    <select name="role_id" id="role_id" required>
-                                        <option value="">-- Select Role --</option>
-                                        <?php foreach ($roles as $r): ?>
-                                            <option value="<?= $r['id'] ?>" <?= $r['id'] == $role_id ? 'selected' : '' ?>>
-                                                <?= ucfirst(htmlspecialchars($r['name'])) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                                <div class="form-group" id="dentist-assignment" 
-                                     style="display: <?= $role_id === $clientRoleId ? 'block' : 'none' ?>;">
-                                    <label for="dentist_id">
-                                        <i class="fas fa-user-md"></i> Assign to Dentist
-                                    </label>
-                                    <select name="dentist_id" id="dentist_id">
-                                        <option value="">-- No specific dentist --</option>
-                                        <?php foreach ($dentists as $d): ?>
-                                            <option value="<?= $d['id'] ?>" <?= $d['id'] == $dentist_id ? 'selected' : '' ?>>
-                                                Dr. <?= htmlspecialchars($d['name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <small class="form-help">Optional: Assign this client to a specific dentist</small>
-                                </div>
-                            </div>
-
-                            <div class="password-section">
-                                <h3><i class="fas fa-key"></i> Password Settings</h3>
-                                
-                                <div class="form-group">
-                                    <label for="password">
-                                        <i class="fas fa-lock"></i> Password
-                                        <?php if (!$id): ?> *<?php endif; ?>
-                                    </label>
-                                    <div class="password-input-group">
-                                        <input type="password" name="password" id="password" 
-                                               placeholder="<?= $id ? 'Leave blank to keep current password' : 'Enter password' ?>"
-                                               <?php if (!$id): ?>required<?php endif; ?>>
-                                        <button type="button" class="password-toggle" id="toggle-password">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                    <?php if ($id): ?>
-                                        <small class="form-help">Leave blank to keep the current password</small>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="password-options">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" name="generate_password" id="generate_password">
-                                        <span class="checkmark"></span>
-                                        Generate secure random password
-                                    </label>
-                                    <small class="form-help">
-                                        If checked, a secure password will be generated and emailed to the user
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-<?= $id ? 'save' : 'user-plus' ?>"></i>
-                                    <?= $id ? 'Update User' : 'Create User' ?>
-                                </button>
-                                <a href="<?= $request_id ? 'view_requests.php' : 'users.php' ?>" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Cancel
-                                </a>
-                            </div>
-                        </form>
+                    <div class="page-actions">
+                        <a href="<?= $request_id ? 'view_requests.php' : 'users.php' ?>" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            <?= $request_id ? 'Back to Requests' : 'Back to Users' ?>
+                        </a>
                     </div>
                 </div>
-            </main>
-        </div>
-    </div>
+                <br>
 
-    <script src="../script.js"></script>
-    <script>
-        // Role-based field visibility
-        document.getElementById('role_id').addEventListener('change', function() {
-            const dentistAssignment = document.getElementById('dentist-assignment');
-            const clientRoleId = <?= $clientRoleId ?>;
-            
-            if (parseInt(this.value) === clientRoleId) {
-                dentistAssignment.style.display = 'block';
-            } else {
-                dentistAssignment.style.display = 'none';
-                document.getElementById('dentist_id').value = '';
-            }
-        });
-
-        // Password visibility toggle
-        document.getElementById('toggle-password').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                passwordInput.type = 'password';
-                icon.className = 'fas fa-eye';
-            }
-        });
-
-        // Password generation toggle
-        document.getElementById('generate_password').addEventListener('change', function() {
-            const passwordInput = document.getElementById('password');
-            
-            if (this.checked) {
-                passwordInput.value = '';
-                passwordInput.placeholder = 'Will be auto-generated and emailed to user';
-                passwordInput.readOnly = true;
-                passwordInput.required = false;
-            } else {
-                passwordInput.placeholder = '<?= $id ? "Leave blank to keep current password" : "Enter password" ?>';
-                passwordInput.readOnly = false;
-                <?php if (!$id): ?>
-                passwordInput.required = true;
+                <?php if ($success): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Success!</strong> User account <?= $id ? 'updated' : 'created' ?> successfully.
+                        <?php if ($generated_password): ?>
+                            <div class="generated-password">
+                                <strong>Generated Password:</strong>
+                                <small>(A password has been generated and emailed to the user.)</small>
+                            </div>
+                        <?php endif; ?>
+                        <div class="alert-actions">
+                            <a href="users.php" class="btn btn-primary btn-sm">View All Users</a>
+                            <?php if (!$id): ?>
+                                <a href="user_form.php" class="btn btn-secondary btn-sm">Create Another User</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
-            }
-        });
-    </script>
+
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Please fix the following errors:</strong>
+                        <ul>
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($request_id): ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Account Request:</strong> You are creating an account from a client request.
+                        The name and email have been pre-filled from the request.
+                    </div>
+                <?php endif; ?>
+
+                <div class="form-container">
+                    <form method="post" class="user-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name">
+                                    <i class="fas fa-user"></i> Full Name *
+                                </label>
+                                <input type="text" name="name" id="name"
+                                       value="<?= htmlspecialchars($name) ?>"
+                                       placeholder="Enter full name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope"></i> Email Address *
+                                </label>
+                                <input type="email" name="email" id="email"
+                                       value="<?= htmlspecialchars($email) ?>"
+                                       placeholder="Enter email address" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role_id">
+                                    <i class="fas fa-user-tag"></i> User Role *
+                                </label>
+                                <select name="role_id" id="role_id" required>
+                                    <?php if (!$request_id)
+                                    echo '<option value="">-- Select Role --</option>';
+                                    ?>
+                                    <?php foreach ($roles as $r): ?>
+                                        <option value="<?= $r['id'] ?>" <?= $r['id'] == $role_id ? 'selected' : '' ?>>
+                                            <?= ucfirst(htmlspecialchars($r['name'])) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="dentist-assignment"
+                                 style="display: <?= $role_id === $clientRoleId ? 'block' : 'none' ?>;">
+                                <label for="dentist_id">
+                                    <i class="fas fa-user-md"></i> Assign to Dentist
+                                </label>
+                                <select name="dentist_id" id="dentist_id">
+                                    <option value="">-- No specific dentist --</option>
+                                    <?php foreach ($dentists as $d): ?>
+                                        <option value="<?= $d['id'] ?>" <?= $d['id'] == $dentist_id ? 'selected' : '' ?>>
+                                            Dr. <?= htmlspecialchars($d['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="form-help">Optional: Assign this client to a specific dentist</small>
+                            </div>
+                        </div>
+
+                        <div class="password-section">
+                            <h3><i class="fas fa-key"></i> Password Settings</h3>
+
+                            <div class="form-group">
+                                <label for="password">
+                                    <i class="fas fa-lock"></i> Password
+                                    <?php if (!$id): ?> *<?php endif; ?>
+                                </label>
+                                <div class="password-input-group">
+                                    <input type="password" name="password" id="password"
+                                           placeholder="<?= $id ? 'Leave blank to keep current password' : 'Enter password' ?>"
+                                           <?php if (!$id): ?>required<?php endif; ?>>
+                                    <button type="button" class="password-toggle" id="toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <?php if ($id): ?>
+                                    <small class="form-help">Leave blank to keep the current password</small>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="password-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="generate_password" id="generate_password">
+                                    <span class="checkmark"></span>
+                                    Generate secure random password
+                                </label>
+                                <small class="form-help">
+                                    If checked, a secure password will be generated and emailed to the user
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-<?= $id ? 'save' : 'user-plus' ?>"></i>
+                                <?= $id ? 'Update User' : 'Create User' ?>
+                            </button>
+                            <a href="<?= $request_id ? 'view_requests.php' : 'users.php' ?>" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="../script.js"></script>
+<script>
+    // Role-based field visibility
+    document.getElementById('role_id').addEventListener('change', function() {
+        const dentistAssignment = document.getElementById('dentist-assignment');
+        const clientRoleId = <?= $clientRoleId ?>;
+
+        if (parseInt(this.value) === clientRoleId) {
+            dentistAssignment.style.display = 'block';
+        } else {
+            dentistAssignment.style.display = 'none';
+            document.getElementById('dentist_id').value = '';
+        }
+    });
+
+    document.getElementById('role_id').dispatchEvent(new Event('change'));
+
+    // Password visibility toggle
+    document.getElementById('toggle-password').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    });
+
+    // Password generation toggle
+    document.getElementById('generate_password').addEventListener('change', function() {
+        const passwordInput = document.getElementById('password');
+
+        if (this.checked) {
+            passwordInput.value = '';
+            passwordInput.placeholder = 'Will be auto-generated and emailed to user';
+            passwordInput.readOnly = true;
+            passwordInput.required = false;
+        } else {
+            passwordInput.placeholder = '<?= $id ? "Leave blank to keep current password" : "Enter password" ?>';
+            passwordInput.readOnly = false;
+            <?php if (!$id): ?>
+            passwordInput.required = true;
+            <?php endif; ?>
+        }
+    });
+</script>
 </body>
 </html>

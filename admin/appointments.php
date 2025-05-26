@@ -113,7 +113,7 @@ if ($params) {
     mysqli_stmt_close($count_stmt);
 } else {
     $count_result = mysqli_query($conn, $count_sql);
-    $total_records = mysqli_fetch_row($count_result)[0];
+    $total_records = mysqli_fetch_row($count_result) == null ? 0 : mysqli_fetch_row($count_result)[0];
 }
 
 $total_pages = ceil($total_records / $items_per_page);
@@ -223,8 +223,11 @@ mysqli_stmt_close($stmt);
                         </a>
                     </div>
 
+
+
                     <!-- Success/Error Messages -->
                     <?php if (isset($_GET['deleted'])): ?>
+                        <br>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i>
                             <div class="alert-content">
@@ -235,6 +238,7 @@ mysqli_stmt_close($stmt);
                     <?php endif; ?>
 
                     <?php if (isset($_GET['updated'])): ?>
+                        <br>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i>
                             <div class="alert-content">
@@ -244,6 +248,7 @@ mysqli_stmt_close($stmt);
                         </div>
                     <?php endif; ?>
 
+                    <br>
                     <!-- Search and Filter -->
                     <div class="search-filter-section">
                         <form method="GET" class="search-form">
@@ -275,6 +280,8 @@ mysqli_stmt_close($stmt);
                             </div>
                         </form>
                     </div>
+
+                    <br>
 
                     <!-- Results Info -->
                     <div class="results-info">

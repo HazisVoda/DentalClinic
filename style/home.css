@@ -663,3 +663,7 @@ textarea.form-control:not(:placeholder-shown) ~ label {
         text-align: center;
     }
 }
+
+html {
+    scroll-behavior: smooth;
+}
