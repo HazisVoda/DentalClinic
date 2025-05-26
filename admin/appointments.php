@@ -101,8 +101,26 @@ if ($date_filter) {
 }
 
 // Get total count for pagination
-$count_sql = str_replace("SELECT a.id, c.name AS client_name, d.name AS dentist_name, a.start_time, a.end_time, a.status, a.notes, a.created_at FROM", "SELECT COUNT(*) as total FROM", $sql);
-$count_sql = str_replace(" ORDER BY a.start_time DESC", "", $count_sql);
+$count_sql = "
+    SELECT COUNT(*) as total
+    FROM appointments a
+    JOIN users c ON a.client_id = c.id
+    JOIN users d ON a.dentist_id = d.id
+    WHERE 1=1
+    ";
+
+if ($search) {
+    $count_sql .= " AND (c.name LIKE ? OR d.name LIKE ? OR a.notes LIKE ?)";
+};
+
+if ($status_filter) {
+    $count_sql .= " AND a.status = ?";
+}
+
+
+if ($date_filter) {
+    $count_sql .= " AND DATE(a.start_time) = ?";
+}
 
 if ($params) {
     $count_stmt = mysqli_prepare($conn, $count_sql);
@@ -113,7 +131,8 @@ if ($params) {
     mysqli_stmt_close($count_stmt);
 } else {
     $count_result = mysqli_query($conn, $count_sql);
-    $total_records = mysqli_fetch_row($count_result) == null ? 0 : mysqli_fetch_row($count_result)[0];
+    $row = mysqli_fetch_row($count_result);
+    $total_records = $row ? $row[0] : 0;
 }
 
 $total_pages = ceil($total_records / $items_per_page);
@@ -145,6 +164,7 @@ mysqli_stmt_bind_result($stmt, $unread_count);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

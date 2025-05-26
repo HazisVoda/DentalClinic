@@ -79,6 +79,16 @@ foreach ($roles as $r) {
     if ($r['name'] === 'dentist') $dentistRoleId = $r['id'];
 }
 
+$dstmt = mysqli_prepare($conn,
+    "SELECT id 
+       FROM roles 
+      WHERE name = 'dentist'"
+);
+mysqli_stmt_execute($dstmt);
+mysqli_stmt_bind_result($dstmt, $dentistRoleId);
+mysqli_stmt_fetch($dstmt);
+mysqli_stmt_close($dstmt);
+
 // Fetch dentists list
 $dentists = [];
 if ($dentistRoleId) {
@@ -346,9 +356,6 @@ mysqli_stmt_close($stmt);
                                     <i class="fas fa-user-tag"></i> User Role *
                                 </label>
                                 <select name="role_id" id="role_id" required>
-                                    <?php if (!$request_id)
-                                    echo '<option value="">-- Select Role --</option>';
-                                    ?>
                                     <?php foreach ($roles as $r): ?>
                                         <option value="<?= $r['id'] ?>" <?= $r['id'] == $role_id ? 'selected' : '' ?>>
                                             <?= ucfirst(htmlspecialchars($r['name'])) ?>
@@ -370,7 +377,6 @@ mysqli_stmt_close($stmt);
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <small class="form-help">Optional: Assign this client to a specific dentist</small>
                             </div>
                         </div>
 

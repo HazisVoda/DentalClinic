@@ -104,8 +104,20 @@ if ($role_filter) {
 }
 
 // Get total count for pagination
-$count_sql = str_replace("SELECT u.id, u.name, u.email, r.name AS role, CASE WHEN u.dentist_id IS NOT NULL THEN d.name ELSE '—' END AS dentist_name, u.created_at FROM", "SELECT COUNT(*) as total FROM", $sql);
-$count_sql = str_replace(" ORDER BY r.name ASC, u.name ASC", "", $count_sql);
+$count_sql = "
+    SELECT COUNT(*) as total
+    FROM users u
+    JOIN roles r ON u.role_id = r.id
+    LEFT JOIN users d ON u.dentist_id = d.id
+    WHERE 1=1
+";
+
+if ($search) {
+    $count_sql .= " AND (u.name LIKE ? OR u.email LIKE ?)";
+}
+if ($role_filter) {
+    $count_sql .= " AND r.name = ?";
+}
 
 if ($params) {
     $count_stmt = mysqli_prepare($conn, $count_sql);
@@ -155,6 +167,7 @@ mysqli_stmt_bind_result($stmt, $unread_count);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
