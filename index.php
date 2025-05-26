@@ -117,7 +117,7 @@ if(isset($_POST['name']) && isset($_POST['email'])) {
             </div>
             <div class="team__card animate-team fw-semibold">
                 <img src="style/images/Boel.jpg" alt="person" class="team__img">
-                <p>Boel</p>
+                <p>Ardjan</p>
             </div>
             <div class="team__card animate-team fw-semibold">
                 <img src="style/images/Manjola.jpg" alt="person" class="team__img">
